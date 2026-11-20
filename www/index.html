@@ -1,0 +1,3919 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f19" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Route Tracker" />
+  <title>Route Backend Tracker — متتبع مسار الباك إند</title>
+
+  <link rel="stylesheet" href="fonts.css" />
+  <link rel="stylesheet" href="tailwind.css" />
+</head>
+<body class="bg-[#0b0f19] text-slate-100 font-sans antialiased selection:bg-cyan-500/30 selection:text-cyan-200 min-h-screen pb-24 lg:pb-10 overflow-x-hidden">
+
+  <!-- ==================== STICKY TOP HEADER ==================== -->
+  <header class="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-xl border-b border-[#1f2937]">
+    <div class="max-w-6xl mx-auto px-3 sm:px-5 py-3 flex items-center justify-between gap-2 sm:gap-4">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-500 to-violet-500 p-[1.5px] shrink-0 shadow-lg shadow-cyan-500/20">
+          <div class="w-full h-full bg-[#0b0f19] rounded-[14px] flex items-center justify-center">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-sm sm:text-base font-extrabold text-white tracking-tight truncate" dir="ltr">Route Backend Tracker</h1>
+          <p class="text-[11px] text-slate-400 truncate">م/ أميرة عزت + ورش م/ رنيم مجدي</p>
+        </div>
+      </div>
+
+      <!-- Desktop 5-Tab Navigation -->
+      <nav class="hidden lg:flex items-center bg-[#111827] p-1 rounded-2xl border border-[#1f2937]" aria-label="التنقل الرئيسي">
+        <button type="button" data-tab="home" class="desktop-tab px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">الرئيسية</button>
+        <button type="button" data-tab="curriculum" class="desktop-tab px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-slate-400 hover:text-slate-100 border border-transparent">المنهج</button>
+        <button type="button" data-tab="timeline" class="desktop-tab px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-slate-400 hover:text-slate-100 border border-transparent">المخطط</button>
+        <button type="button" data-tab="timer" class="desktop-tab px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-slate-400 hover:text-slate-100 border border-transparent">التايمر</button>
+        <button type="button" data-tab="stats" class="desktop-tab px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-slate-400 hover:text-slate-100 border border-transparent">الإحصائيات</button>
+      </nav>
+
+      <!-- Cloud Sync Pill + Progress Badge -->
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- Sync Status & Google Sign-In / Sign-Out Pill -->
+        <button id="syncActionBtn" type="button" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold bg-[#111827] hover:bg-slate-800 border border-[#1f2937] text-slate-200 transition-all active:scale-95">
+          <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
+          <span id="syncLabel" class="truncate max-w-[110px] sm:max-w-[160px]">محلي • مزامنة سحابية</span>
+        </button>
+
+        <span id="headerPctBadge" class="px-2.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/25" dir="ltr">0%</span>
+      </div>
+    </div>
+
+    <!-- Thin Global Progress Line -->
+    <div class="w-full h-[2.5px] bg-[#111827]">
+      <div id="topProgressLine" class="h-full bg-gradient-to-l from-emerald-400 via-cyan-400 to-violet-500 transition-all duration-500" style="width: 0%"></div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="max-w-6xl mx-auto px-3 sm:px-5 pt-5 space-y-5">
+
+    <!-- ================================================================ -->
+    <!-- TAB 1: HOME DASHBOARD (الرئيسية)                                 -->
+    <!-- ================================================================ -->
+    <section id="view-home" class="space-y-5">
+
+      <!-- Hero Progress Ring + 4 Key Metric Cards -->
+      <div class="rounded-3xl bg-[#111827] border border-[#1f2937] p-5 sm:p-6 shadow-2xl shadow-black/40">
+        <div class="flex flex-col md:flex-row md:items-center gap-5">
+          <!-- Circular Overall Ring -->
+          <div class="flex items-center gap-4 shrink-0">
+            <div class="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#1f2937" stroke-width="8" />
+                <circle id="heroCircle" cx="50" cy="50" r="42" fill="none" stroke="url(#heroGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="263.89" class="transition-all duration-700 ease-out" />
+                <defs>
+                  <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#10b981" />
+                    <stop offset="50%" stop-color="#06b6d4" />
+                    <stop offset="100%" stop-color="#8b5cf6" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span id="heroPctText" class="text-xl sm:text-2xl font-black font-mono text-white">0%</span>
+                <span class="text-[10px] text-slate-400 font-bold">مكتمل</span>
+              </div>
+            </div>
+
+            <!-- Mobile Summary beside Ring -->
+            <div class="md:hidden flex-1 min-w-0 space-y-1">
+              <div class="text-xs font-semibold text-slate-400">إجمالي التقدم في المسار</div>
+              <div id="heroTotalMobile" class="text-lg font-extrabold text-white">0 / 0 عنصر</div>
+              <div id="heroWeeksMobile" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">0 / 35 وحدة</div>
+            </div>
+          </div>
+
+          <!-- 4 Stat Cards Grid -->
+          <div class="flex-1 min-w-0 space-y-3.5">
+            <div class="hidden md:flex items-center justify-between gap-3">
+              <div>
+                <span class="text-xs font-semibold text-slate-400">متابعة مسار Backend (Node.js & MongoDB + NestJS)</span>
+                <h2 id="heroTotalDesktop" class="text-2xl font-black text-white mt-0.5">0 / 0 عنصر</h2>
+              </div>
+              <span id="heroWeeksDesktop" class="px-3.5 py-1.5 rounded-2xl text-xs font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">0 / 35 وحدة مكتملة</span>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+              <!-- Card 1: Total Progress -->
+              <div class="rounded-2xl bg-[#0b0f19] border border-[#1f2937] p-3 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-emerald-300">إجمالي الإنجاز</span>
+                  <span id="statTotalRatio" class="text-xs font-mono font-bold text-white" dir="ltr">0/0</span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-[#1f2937] overflow-hidden">
+                  <div id="barTotal" class="h-full rounded-full bg-emerald-400 transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Card 2: Videos -->
+              <div class="rounded-2xl bg-[#0b0f19] border border-[#1f2937] p-3 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-cyan-300">الفيديوهات</span>
+                  <span id="statVideosRatio" class="text-xs font-mono font-bold text-white" dir="ltr">0/0</span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-[#1f2937] overflow-hidden">
+                  <div id="barVideos" class="h-full rounded-full bg-cyan-400 transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Card 3: Workshops & Assignments -->
+              <div class="rounded-2xl bg-[#0b0f19] border border-[#1f2937] p-3 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-violet-300">الورش والـ Tasks</span>
+                  <span id="statPracticeRatio" class="text-xs font-mono font-bold text-white" dir="ltr">0/0</span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-[#1f2937] overflow-hidden">
+                  <div id="barPractice" class="h-full rounded-full bg-violet-400 transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Card 4: Review Flags (Clickable shortcut) -->
+              <button id="homeReviewCardBtn" type="button" class="text-right rounded-2xl bg-[#0b0f19] hover:bg-amber-500/10 border border-[#1f2937] hover:border-amber-500/35 p-3 space-y-1 transition-all active:scale-95">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-amber-300">عناصر للمراجعة ⭐</span>
+                  <span id="statReviewCount" class="text-xs font-mono font-extrabold text-amber-300" dir="ltr">0</span>
+                </div>
+                <div class="text-[10px] text-slate-400 truncate">اضغط لعرض قائمة المراجعة</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic Timeline Summary Banner -->
+      <div class="rounded-3xl bg-gradient-to-l from-cyan-500/10 via-[#111827] to-violet-500/10 border border-cyan-500/25 p-4 sm:p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-xl text-[11px] font-extrabold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">📅 ملخص المخطط الزمني</span>
+            <span id="homePaceBadge" class="text-xs font-bold text-slate-300">قياسي (7 أيام)</span>
+          </div>
+          <button id="homeGoTimelineBtn" type="button" class="px-3.5 py-2 rounded-xl bg-[#0b0f19] hover:bg-slate-800 border border-[#1f2937] text-xs font-bold text-cyan-300 transition-colors">
+            تعديل الخطة والتمديد ←
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <div class="rounded-2xl bg-[#0b0f19]/90 border border-[#1f2937] p-3">
+            <div class="text-[11px] text-slate-400 font-semibold">تاريخ البداية</div>
+            <div id="homeStartDate" class="text-xs sm:text-sm font-extrabold text-white mt-1">—</div>
+          </div>
+          <div class="rounded-2xl bg-[#0b0f19]/90 border border-emerald-500/30 p-3">
+            <div class="text-[11px] text-emerald-300 font-semibold">تاريخ التخرج المتوقع 🎓</div>
+            <div id="homeGradDate" class="text-xs sm:text-sm font-extrabold text-emerald-300 mt-1">—</div>
+          </div>
+          <div class="rounded-2xl bg-[#0b0f19]/90 border border-[#1f2937] p-3">
+            <div class="text-[11px] text-slate-400 font-semibold">إجمالي أيام التمديد</div>
+            <div id="homeTotalExt" class="text-xs sm:text-sm font-extrabold text-amber-300 mt-1">0 يوم</div>
+          </div>
+          <div class="rounded-2xl bg-[#0b0f19]/90 border border-[#1f2937] p-3">
+            <div class="text-[11px] text-slate-400 font-semibold">المتبقي على التخرج</div>
+            <div id="homeDaysRemaining" class="text-xs sm:text-sm font-extrabold text-violet-300 mt-1">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Up Card -->
+      <div class="rounded-3xl bg-[#111827] border border-emerald-500/30 p-4 sm:p-5 shadow-xl shadow-black/30 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="min-w-0 space-y-1.5">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-2.5 py-1 rounded-xl text-[11px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">⚡ كمل من هنا (Next Up)</span>
+            <span id="nextUpWeekBadge" class="text-xs font-bold text-slate-300"></span>
+            <span id="nextUpDateBadge" class="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20"></span>
+          </div>
+          <h3 id="nextUpTitle" class="text-sm sm:text-base font-bold text-white font-mono break-words" dir="ltr"></h3>
+          <p id="nextUpSection" class="text-xs text-slate-400"></p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button id="nextUpTimerBtn" type="button" class="flex-1 sm:flex-none px-3.5 py-3 rounded-2xl bg-violet-500/15 hover:bg-violet-500/25 text-violet-300 border border-violet-500/30 text-xs font-extrabold transition-all active:scale-95">
+            ⏱️ تايمر 1.5x
+          </button>
+          <button id="nextUpJumpBtn" type="button" class="flex-1 sm:flex-none px-3.5 py-3 rounded-2xl bg-[#0b0f19] hover:bg-slate-800 text-slate-200 border border-[#1f2937] text-xs font-bold transition-all active:scale-95">
+            فتح الأسبوع
+          </button>
+          <button id="nextUpDoneBtn" type="button" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-[#0b0f19] text-xs font-black shadow-lg shadow-emerald-500/20 transition-all active:scale-95">
+            تم الإنجاز ✓
+          </button>
+        </div>
+      </div>
+
+      <!-- Daily Streak + Quick 10-Min Start CTA -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <div class="md:col-span-7 rounded-3xl bg-[#111827] border border-[#1f2937] p-5 flex flex-col justify-between gap-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="text-xs font-bold text-slate-400">سلسلة الالتزام اليومي</span>
+              <div id="homeStreakVal" class="text-3xl font-black text-amber-400 mt-1">0 يوم 🔥</div>
+            </div>
+            <div class="flex gap-2">
+              <div class="px-3 py-2 rounded-2xl bg-[#0b0f19] border border-[#1f2937] text-center">
+                <div class="text-[10px] text-slate-400 font-bold">إنجاز اليوم</div>
+                <div id="homeTodayItems" class="text-base font-mono font-extrabold text-emerald-400">0</div>
+              </div>
+              <div class="px-3 py-2 rounded-2xl bg-[#0b0f19] border border-[#1f2937] text-center">
+                <div class="text-[10px] text-slate-400 font-bold">دقائق تركيز</div>
+                <div id="homeTodayMins" class="text-base font-mono font-extrabold text-cyan-400">0د</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+            <span>أطول سلسلة: <strong id="homeBestStreak" class="text-violet-300">0 يوم 🏆</strong></span>
+            <span>•</span>
+            <span>إجمالي دقائق التركيز: <strong id="homeAllMins" class="text-white font-mono">0 د</strong></span>
+          </div>
+        </div>
+
+        <!-- Beat Procrastination 10-Min CTA -->
+        <div class="md:col-span-5 rounded-3xl bg-gradient-to-br from-emerald-500/15 via-[#111827] to-cyan-500/10 border border-emerald-500/30 p-5 flex flex-col justify-between gap-4">
+          <div class="space-y-1">
+            <span class="text-xs font-extrabold text-emerald-300">⚡ كسر حاجز البداية</span>
+            <h3 class="text-base font-extrabold text-white">مكسل تبدأ؟ جرب 10 دقائق فقط!</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">ابدأ جلسة سريعة 10 دقائق على أول فيديو في المنهج وستجد نفسك مستمراً تلقائياً.</p>
+          </div>
+          <button id="homeQuickStart10Btn" type="button" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-l from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-[#0b0f19] text-xs sm:text-sm font-black shadow-lg shadow-emerald-500/20 transition-all active:scale-95">
+            ابدأ جلسة 10 دقائق الآن ⚡
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- TAB 2: CURRICULUM CHECKLIST (المنهج)                             -->
+    <!-- ================================================================ -->
+    <section id="view-curriculum" class="hidden space-y-4">
+
+      <!-- Search + Filter Chips Bar -->
+      <div class="rounded-3xl bg-[#111827] border border-[#1f2937] p-3.5 sm:p-4 space-y-3">
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <div class="relative flex-1">
+            <svg class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input id="searchInput" type="text" placeholder="ابحث عن فيديو، أسبوع، ورشة، أو موضوع (Event Loop, Redis, Jest, Stripe, Docker)..." class="w-full rounded-2xl bg-[#0b0f19] border border-[#1f2937] focus:border-cyan-500/70 focus:ring-2 focus:ring-cyan-500/20 pr-10 pl-9 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" />
+            <button id="clearSearchBtn" type="button" class="hidden absolute left-2.5 top-1/2 -translate-y-1/2 p-1 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800" aria-label="مسح البحث">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <button id="toggleAllPhasesBtn" type="button" class="px-4 py-2.5 rounded-2xl bg-[#0b0f19] hover:bg-slate-800 border border-[#1f2937] text-xs font-bold text-slate-200 transition-colors shrink-0">
+            فتح كل المراحل
+          </button>
+        </div>
+
+        <!-- 8 Filter Chips -->
+        <div id="filterPillsBar" class="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Phases & Weeks Accordion -->
+      <div id="phasesContainer" class="space-y-4">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Empty Search State -->
+      <div id="emptyCurriculumState" class="hidden rounded-3xl bg-[#111827] border border-[#1f2937] p-10 text-center space-y-2.5">
+        <div class="text-3xl">🔍</div>
+        <h3 class="text-base font-extrabold text-white">لا توجد عناصر مطابقة للفلتر أو البحث</h3>
+        <p class="text-xs text-slate-400">جرب تغيير الفلتر المختار أو مسح نص البحث.</p>
+        <button id="resetSearchFiltersBtn" type="button" class="px-4 py-2.5 rounded-2xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-bold">
+          إعادة ضبط البحث والفلاتر
+        </button>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- TAB 3: DYNAMIC TIMELINE & AUTO-RIPPLE PLANNER (المخطط)           -->
+    <!-- ================================================================ -->
+    <section id="view-timeline" class="hidden space-y-5">
+
+      <!-- Timeline Control Panel -->
+      <div class="rounded-3xl bg-[#111827] border border-[#1f2937] p-5 space-y-5 shadow-xl shadow-black/30">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-white">📅 المخطط الزمني الذكي (Auto-Ripple Planner)</h2>
+            <p class="text-xs text-slate-400 mt-0.5">أي تمديد أو تقليص تضيفه على أي أسبوع يقوم أوتوماتيكياً بتحديث تواريخ كل الأسابيع والجلسات التالية وتاريخ التخرج.</p>
+          </div>
+          <button id="resetAllExtensionsBtn" type="button" class="self-start sm:self-center px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/25 text-xs font-bold transition-colors shrink-0">
+            تصفير كل التمديدات
+          </button>
+        </div>
+
+        <!-- Start Date + Pace Selector + Bonus Toggle -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+          <!-- Start Date Input -->
+          <div class="md:col-span-4 rounded-2xl bg-[#0b0f19] border border-[#1f2937] p-3.5 space-y-2">
+            <label for="timelineStartDateInput" class="block text-xs font-bold text-cyan-300">تاريخ البداية (Start Date)</label>
+            <input id="timelineStartDateInput" type="date" value="2026-11-28" class="w-full rounded-xl bg-[#111827] border border-[#1f2937] focus:border-cyan-500 px-3 py-2 text-sm font-mono font-bold text-white outline-none" dir="ltr" />
+          </div>
+
+          <!-- Global Pace Mode -->
+          <div class="md:col-span-8 rounded-2xl bg-[#0b0f19] border border-[#1f2937] p-3.5 space-y-2">
+            <span class="block text-xs font-bold text-violet-300">سرعة الخطة العامة (Global Pace Mode)</span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button type="button" data-pace="intensive" class="pace-btn px-3 py-2.5 rounded-xl text-xs font-bold border transition-all text-center">
+                ⚡ مكثف (أسبوع = 5 أيام)
+              </button>
+              <button type="button" data-pace="standard" class="pace-btn px-3 py-2.5 rounded-xl text-xs font-bold border transition-all text-center">
+                ⚖️ قياسي (أسبوع = 7 أيام)
+              </button>
+              <button type="button" data-pace="relaxed" class="pace-btn px-3 py-2.5 rounded-xl text-xs font-bold border transition-all text-center">
+                🌿 مريح مع الدراسة (9 أيام)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Include Roadmap.sh Bonus Toggle + Graduation Banner -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-2 border-t border-[#1f2937]">
+          <label class="inline-flex items-center gap-3 cursor-pointer select-none">
+            <input id="includeBonusToggle" type="checkbox" class="sr-only peer" />
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-500 relative after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:-translate-x-5"></div>
+            <span class="text-xs sm:text-sm font-bold text-slate-200">تضمين بند ما بعد الكورس (Roadmap.sh Bonus) في تاريخ التخرج</span>
+          </label>
+
+          <!-- Prominent Graduation Date Pill -->
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="px-4 py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2.5">
+              <span class="text-lg">🎓</span>
+              <div>
+                <div class="text-[10px] font-bold text-emerald-300">تاريخ الانتهاء المتوقع</div>
+                <div id="timelineGradDate" class="text-sm font-black text-white">—</div>
+              </div>
+            </div>
+            <div class="px-3.5 py-2.5 rounded-2xl bg-[#0b0f19] border border-[#1f2937] text-center">
+              <div class="text-[10px] font-bold text-slate-400">إجمالي الأيام</div>
+              <div id="timelineTotalDays" class="text-sm font-mono font-extrabold text-cyan-300">0 يوم</div>
+            </div>
+            <div class="px-3.5 py-2.5 rounded-2xl bg-[#0b0f19] border border-[#1f2937] text-center">
+              <div class="text-[10px] font-bold text-slate-400">التمديدات</div>
+              <div id="timelineTotalExt" class="text-sm font-mono font-extrabold text-amber-300">+0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase Filter Quick Jump inside Timeline -->
+      <div id="timelinePhaseFilterBar" class="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Timeline Modules List -->
+      <div id="timelineModulesContainer" class="space-y-3.5">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- TAB 4: SMART 1.5x VIDEO STUDY TIMER (التايمر)                    -->
+    <!-- ================================================================ -->
+    <section id="view-timer" class="hidden space-y-5">
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- Smart Video Multiplier Calculator Card -->
+        <div class="lg:col-span-5 rounded-3xl bg-[#111827] border border-[#1f2937] p-5 space-y-5 flex flex-col justify-between">
+          <div class="space-y-4">
+            <div>
+              <span class="px-2.5 py-1 rounded-xl text-[11px] font-extrabold bg-violet-500/15 text-violet-300 border border-violet-500/30">🎬 حاسبة وقت الفيديو الذكية</span>
+              <h2 class="text-base sm:text-lg font-black text-white mt-2">تايمر الفيديو × 1.5 (فيديو + كود)</h2>
+              <p class="text-xs text-slate-400 mt-0.5">أدخل مدة الفيديو بالدقائق ليحسب التايمر وقت المشاهدة + وقت الإيقاف وكتابة الكود تلقائياً.</p>
+            </div>
+
+            <!-- Video Duration Input -->
+            <div class="space-y-2">
+              <label for="videoMinutesInput" class="block text-xs font-bold text-slate-300">مدة الفيديو (بالدقائق)</label>
+              <div class="flex items-center gap-2 bg-[#0b0f19] border border-[#1f2937] focus-within:border-cyan-500 rounded-2xl px-4 py-2.5">
+                <input id="videoMinutesInput" type="number" min="1" max="300" value="36" placeholder="36" class="w-full bg-transparent text-xl font-mono font-extrabold text-cyan-300 outline-none" dir="ltr" />
+                <span class="text-xs font-bold text-slate-400 shrink-0">دقيقة</span>
+              </div>
+
+              <!-- Quick Video Duration Chips -->
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                <button type="button" data-vmins="15" class="vmins-chip px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-[#0b0f19] hover:bg-slate-800 border border-[#1f2937] text-slate-300 transition-colors">15 د</button>
+                <button type="button" data-vmins="25" class="vmins-chip px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-[#0b0f19] hover:bg-slate-800 border border-[#1f2937] text-slate-300 transition-colors">25 د</button>
+                <button type="button" data-vmins="36" class="vmins-chip px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-cyan-500/15 border border-cyan-500/35 text-cyan-300 transition-colors">36 د</button>
+                <button type="button" data-vmins="45" class="vmins-chip px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-[#0b0f19] hover:bg-slate-800 border border-[#1f2937] text-slate-300 transition-colors">45 د</button>
+                <button type="button" data-vmins="60" class="vmins-chip px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-[#0b0f19] hover:bg-slate-800 border border-[#1f2937] text-slate-300 transition-colors">60 د</button>
+              </div>
+            </div>
+
+            <!-- Multiplier Buttons -->
+            <div class="space-y-2">
+              <span class="block text-xs font-bold text-slate-300">معامل التطبيق (Multiplier)</span>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" data-mult="1" class="mult-btn p-2.5 rounded-2xl text-xs font-bold border border-[#1f2937] bg-[#0b0f19] text-slate-400 hover:text-white transition-all">
+                  <span class="font-mono font-extrabold block text-sm" dir="ltr">1x</span>
+                  <span>مشاهدة فقط</span>
+                </button>
+                <button type="button" data-mult="1.25" class="mult-btn p-2.5 rounded-2xl text-xs font-bold border border-[#1f2937] bg-[#0b0f19] text-slate-400 hover:text-white transition-all">
+                  <span class="font-mono font-extrabold block text-sm" dir="ltr">1.25x</span>
+                  <span>سريع</span>
+                </button>
+                <button type="button" data-mult="1.5" class="mult-btn p-2.5 rounded-2xl text-xs font-bold border border-emerald-500/40 bg-emerald-500/15 text-emerald-300 transition-all">
+                  <span class="font-mono font-extrabold block text-sm" dir="ltr">1.5x</span>
+                  <span>فيديو + كود (الافتراضي)</span>
+                </button>
+                <button type="button" data-mult="2" class="mult-btn p-2.5 rounded-2xl text-xs font-bold border border-[#1f2937] bg-[#0b0f19] text-slate-400 hover:text-white transition-all">
+                  <span class="font-mono font-extrabold block text-sm" dir="ltr">2x</span>
+                  <span>تطبيق عميق</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Live Calculation Breakdown -->
+            <div class="rounded-2xl bg-gradient-to-l from-emerald-500/10 via-[#0b0f19] to-cyan-500/10 border border-emerald-500/25 p-4 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-300">الوقت المطلوب:</span>
+                <span id="calcTotalLabel" class="text-lg font-black text-emerald-300">54 دقيقة</span>
+              </div>
+              <p id="calcBreakdownLabel" class="text-xs text-slate-400">36 د فيديو + 18 د توقف وتطبيق كود</p>
+            </div>
+          </div>
+
+          <button id="startVideoTimerBtn" type="button" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-l from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-[#0b0f19] text-sm font-black shadow-lg shadow-emerald-500/20 transition-all active:scale-95">
+            ابدأ التايمر (54:00) ▶
+          </button>
+        </div>
+
+        <!-- Circular Countdown Ring Card -->
+        <div class="lg:col-span-7 rounded-3xl bg-[#111827] border border-[#1f2937] p-5 sm:p-6 flex flex-col items-center justify-between text-center space-y-5">
+          <!-- Quick Focus Presets -->
+          <div class="flex flex-wrap items-center justify-center gap-2 w-full">
+            <button type="button" data-timer-preset="10" class="focus-preset px-3.5 py-2 rounded-2xl text-xs font-extrabold border border-emerald-500/35 bg-emerald-500/15 text-emerald-300 transition-all active:scale-95">
+              بداية سريعة 10 د ⚡
+            </button>
+            <button type="button" data-timer-preset="25" class="focus-preset px-3.5 py-2 rounded-2xl text-xs font-bold border border-[#1f2937] bg-[#0b0f19] text-slate-300 hover:text-white transition-all active:scale-95">
+              🍅 بومودورو 25 د
+            </button>
+            <button type="button" data-timer-preset="50" class="focus-preset px-3.5 py-2 rounded-2xl text-xs font-bold border border-[#1f2937] bg-[#0b0f19] text-slate-300 hover:text-white transition-all active:scale-95">
+              🚀 جلسة عميقة 50 د
+            </button>
+          </div>
+
+          <!-- Circular SVG Ring -->
+          <div class="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 220 220">
+              <circle cx="110" cy="110" r="98" fill="none" stroke="#1f2937" stroke-width="10" />
+              <circle id="timerCircle" cx="110" cy="110" r="98" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round" stroke-dasharray="615.75" stroke-dashoffset="0" class="transition-all duration-500" />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center space-y-1">
+              <span id="timerModeLabel" class="text-xs font-bold text-emerald-400">تايمر الفيديو × 1.5</span>
+              <span id="timerClock" class="text-5xl sm:text-6xl font-black font-mono text-white tracking-wider" dir="ltr">54:00</span>
+              <span id="timerStatsSub" class="text-xs text-slate-400 font-semibold">مسجل اليوم: 0 دقيقة</span>
+            </div>
+          </div>
+
+          <!-- Timer Controls (Start/Pause, +5m, Reset, Mute) -->
+          <div class="flex items-center justify-center gap-2 w-full max-w-md">
+            <button id="timerToggleBtn" type="button" class="flex-1 py-3 px-5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-[#0b0f19] text-sm font-black shadow-lg shadow-cyan-500/20 transition-all active:scale-95">
+              ابدأ الجلسة
+            </button>
+            <button id="timerAdd5Btn" type="button" class="px-3.5 py-3 rounded-2xl bg-[#0b0f19] hover:bg-slate-800 text-cyan-300 border border-[#1f2937] text-xs font-mono font-bold transition-all active:scale-95" dir="ltr">
+              +5m
+            </button>
+            <button id="timerResetBtn" type="button" aria-label="إعادة ضبط التايمر" class="p-3 rounded-2xl bg-[#0b0f19] hover:bg-slate-800 text-slate-200 border border-[#1f2937] transition-all active:scale-95">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+            <button id="timerMuteBtn" type="button" aria-label="تبديل صوت التنبيه" class="p-3 rounded-2xl bg-[#0b0f19] hover:bg-slate-800 text-slate-200 border border-[#1f2937] transition-all active:scale-95">
+              <svg id="muteIconOff" class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              </svg>
+              <svg id="muteIconOn" class="w-5 h-5 text-rose-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Active Target Video Banner -->
+          <div class="w-full rounded-2xl bg-[#0b0f19] border border-[#1f2937] p-3.5 text-right flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <span class="text-[11px] font-bold text-slate-400 block">الفيديو المستهدف في هذه الجلسة:</span>
+              <span id="timerTargetTitle" class="text-xs sm:text-sm font-bold text-cyan-300 font-mono block truncate mt-0.5" dir="ltr"></span>
+            </div>
+            <button id="timerMarkDoneBtn" type="button" class="shrink-0 px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold transition-colors">
+              تم ✓
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Completed Timer Sessions -->
+      <div class="rounded-3xl bg-[#111827] border border-[#1f2937] p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-extrabold text-white">🕒 سجل جلسات التركيز الأخيرة</h3>
+          <span id="timerTotalLoggedBadge" class="text-xs font-mono font-bold text-cyan-300">0 دقيقة إجمالي</span>
+        </div>
+        <div id="timerHistoryList" class="space-y-2">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- TAB 5: STATISTICS, REVIEW QUEUE & BACKUP (الإحصائيات)            -->
+    <!-- ================================================================ -->
+    <section id="view-stats" class="hidden space-y-5">
+
+      <!-- Top Summary Tiles -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="rounded-2xl bg-[#111827] border border-[#1f2937] p-4">
+          <div class="text-xs text-slate-400 font-bold">نسبة الإنجاز</div>
+          <div id="statsBigPct" class="text-2xl font-black font-mono text-emerald-400 mt-1">0%</div>
+        </div>
+        <div class="rounded-2xl bg-[#111827] border border-[#1f2937] p-4">
+          <div class="text-xs text-slate-400 font-bold">دقائق التركيز المسجلة</div>
+          <div id="statsTotalMins" class="text-2xl font-black font-mono text-cyan-400 mt-1">0 د</div>
+        </div>
+        <div class="rounded-2xl bg-[#111827] border border-[#1f2937] p-4">
+          <div class="text-xs text-slate-400 font-bold">جلسات التايمر</div>
+          <div id="statsSessions" class="text-2xl font-black font-mono text-violet-400 mt-1">0</div>
+        </div>
+        <div class="rounded-2xl bg-[#111827] border border-[#1f2937] p-4">
+          <div class="text-xs text-slate-400 font-bold">في قائمة المراجعة ⭐</div>
+          <div id="statsReviewTotal" class="text-2xl font-black font-mono text-amber-400 mt-1">0</div>
+        </div>
+      </div>
+
+      <!-- Phase-by-Phase Horizontal Progress Bars -->
+      <div class="rounded-3xl bg-[#111827] border border-[#1f2937] p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-extrabold text-white">📊 التقدم حسب المراحل (Phases 0 – 6)</h2>
+          <span id="statsOverallRatio" class="text-xs font-mono font-bold text-slate-400" dir="ltr">0 / 0</span>
+        </div>
+        <div id="phaseChartList" class="space-y-3.5">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Review Queue Summary (⭐ محتاج مراجعة) -->
+      <div class="rounded-3xl bg-[#111827] border border-amber-500/25 p-5 space-y-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-extrabold text-amber-300">⭐ قائمة المراجعة (Review Queue)</h2>
+            <p class="text-xs text-slate-400">كل المواضيع الصعبة التي علّمت عليها بـ ⭐ لمراجعتها قبل المشاريع والإنترفيوهات.</p>
+          </div>
+          <span id="reviewQueueCountBadge" class="px-3 py-1 rounded-xl text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">0 عنصر</span>
+        </div>
+        <div id="reviewQueueList" class="space-y-2">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Cloud Sync & Manual JSON Backup Card -->
+      <div class="rounded-3xl bg-[#111827] border border-[#1f2937] p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-extrabold text-white">☁️ المزامنة السحابية والنسخ الاحتياطي</h2>
+            <p id="statsSyncDesc" class="text-xs text-slate-400 mt-0.5">يمكنك المزامنة السحابية التلقائية أو تحميل نسخة JSON احتياطية في أي وقت.</p>
+          </div>
+          <button id="statsSyncBtn" type="button" class="px-4 py-2.5 rounded-2xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-extrabold transition-colors shrink-0">
+            تسجيل دخول Google للمزامنة
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <button id="exportJsonBtn" type="button" class="py-3 px-4 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold flex items-center justify-center gap-2 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            تصدير JSON
+          </button>
+
+          <button id="copyJsonBtn" type="button" class="py-3 px-4 rounded-2xl bg-[#0b0f19] hover:bg-slate-800 text-slate-200 border border-[#1f2937] text-xs font-bold flex items-center justify-center gap-2 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            نسخ التقدم
+          </button>
+
+          <label class="py-3 px-4 rounded-2xl bg-violet-500/15 hover:bg-violet-500/25 text-violet-300 border border-violet-500/30 text-xs font-extrabold flex items-center justify-center gap-2 transition-colors cursor-pointer">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            استيراد JSON
+            <input id="importJsonInput" type="file" accept=".json,application/json" class="hidden" />
+          </label>
+        </div>
+
+        <div class="pt-3 border-t border-[#1f2937]">
+          <button id="openResetModalBtn" type="button" class="px-4 py-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/25 text-xs font-bold transition-colors">
+            إعادة تعيين كل البيانات (Reset Progress)
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== MOBILE 5-TAB BOTTOM NAVIGATION ==================== -->
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0b0f19]/95 backdrop-blur-xl border-t border-[#1f2937] px-1.5 py-1.5" aria-label="التنقل السفلي">
+    <div class="grid grid-cols-5 gap-1 max-w-lg mx-auto">
+      <button type="button" data-tab="home" class="mobile-tab flex flex-col items-center justify-center py-2 rounded-2xl transition-all bg-cyan-500/15 text-cyan-300">
+        <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        <span class="text-[10px] font-extrabold">الرئيسية</span>
+      </button>
+
+      <button type="button" data-tab="curriculum" class="mobile-tab flex flex-col items-center justify-center py-2 rounded-2xl transition-all text-slate-400">
+        <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+        <span class="text-[10px] font-bold">المنهج</span>
+      </button>
+
+      <button type="button" data-tab="timeline" class="mobile-tab flex flex-col items-center justify-center py-2 rounded-2xl transition-all text-slate-400">
+        <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="text-[10px] font-bold">المخطط</span>
+      </button>
+
+      <button type="button" data-tab="timer" class="mobile-tab flex flex-col items-center justify-center py-2 rounded-2xl transition-all text-slate-400">
+        <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="text-[10px] font-bold">التايمر</span>
+      </button>
+
+      <button type="button" data-tab="stats" class="mobile-tab flex flex-col items-center justify-center py-2 rounded-2xl transition-all text-slate-400">
+        <svg class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <span class="text-[10px] font-bold">الإحصائيات</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== ADD CUSTOM ITEM MODAL ==================== -->
+  <div id="customModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-3xl bg-[#111827] border border-[#1f2937] shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-[#1f2937] flex items-center justify-between">
+        <h3 class="text-base font-extrabold text-white">+ إضافة عنصر مخصص</h3>
+        <button id="closeCustomModalBtn" type="button" class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <form id="customItemForm" class="p-5 space-y-4">
+        <input type="hidden" id="customWeekIdInput" />
+        <div id="customWeekLabel" class="text-xs font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 rounded-xl px-3 py-2"></div>
+        <div class="space-y-1.5">
+          <label for="customTitleInput" class="block text-xs font-bold text-slate-300">عنوان الفيديو، المهمة، أو الملاحظة</label>
+          <input id="customTitleInput" type="text" required placeholder="مثال: حل 5 مسائل LeetCode أو مراجعة Event Loop" class="w-full rounded-2xl bg-[#0b0f19] border border-[#1f2937] focus:border-cyan-500 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none" />
+        </div>
+        <div class="space-y-1.5">
+          <label for="customTypeInput" class="block text-xs font-bold text-slate-300">التصنيف</label>
+          <select id="customTypeInput" class="w-full rounded-2xl bg-[#0b0f19] border border-[#1f2937] focus:border-cyan-500 px-3.5 py-2.5 text-sm text-white outline-none">
+            <option value="video">فيديو</option>
+            <option value="workshop">ورشة</option>
+            <option value="assignment">Assignment</option>
+            <option value="extra">إضافة</option>
+          </select>
+        </div>
+        <div class="flex gap-2.5 pt-1">
+          <button type="submit" class="flex-1 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-[#0b0f19] text-xs font-black transition-colors">إضافة للأسبوع</button>
+          <button id="cancelCustomModalBtn" type="button" class="px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== RESET CONFIRMATION MODAL (No confirm()) ==================== -->
+  <div id="resetModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-3xl bg-[#111827] border border-rose-500/40 shadow-2xl overflow-hidden p-5 space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0 text-lg">⚠️</div>
+        <div>
+          <h3 class="text-base font-extrabold text-white">تأكيد مسح كل التقدم</h3>
+          <p class="text-xs text-slate-400">سيتم حذف كل علامات الإنجاز والمراجعة والروابط والتمديدات وسجل التايمر.</p>
+        </div>
+      </div>
+      <div class="flex gap-2.5 pt-1">
+        <button id="confirmResetBtn" type="button" class="flex-1 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold transition-colors">نعم، امسح الكل</button>
+        <button id="cancelResetModalBtn" type="button" class="flex-1 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ACCOUNT / SYNC MODAL ==================== -->
+  <div id="syncModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-3xl bg-[#111827] border border-[#1f2937] shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-[#1f2937] flex items-center justify-between">
+        <h3 class="text-base font-extrabold text-white">☁️ المزامنة السحابية</h3>
+        <button id="closeSyncModalBtn" type="button" class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div id="syncModalInfo" class="rounded-2xl bg-[#0b0f19] border border-[#1f2937] p-4 space-y-1.5 text-xs text-slate-300">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="flex flex-col gap-2">
+          <button id="googleSignInBtn" type="button" class="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-black flex items-center justify-center gap-2 transition-colors">
+            <span>تسجيل الدخول بحساب Google للمزامنة</span>
+          </button>
+          <button id="signOutBtn" type="button" class="hidden w-full py-3 px-4 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-extrabold transition-colors">
+            تسجيل الخروج
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION ==================== -->
+  <div id="toast" class="pointer-events-none fixed bottom-24 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 opacity-0 translate-y-3 transition-all duration-300">
+    <div class="px-4 py-2.5 rounded-2xl bg-[#111827] border border-cyan-500/40 text-white text-xs font-bold shadow-2xl shadow-black/60 whitespace-nowrap">
+      <span id="toastMsg"></span>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APPLICATION MODULE ==================== -->
+  <script type="module">
+    // Firebase is loaded lazily (only when a config exists) so the app works fully offline.
+    let initializeApp, getAuth, signInWithCustomToken, signInAnonymously, GoogleAuthProvider,
+        signInWithPopup, signOut, onAuthStateChanged, getFirestore, doc, setDoc, onSnapshot;
+
+    // =========================================================================
+    // 1. COMPLETE CURRICULUM DATASET (7 PHASES, 36 MODULES: 35 CORE + 1 BONUS)
+    // =========================================================================
+    const PHASES_RAW = [
+      {
+        id: "p0",
+        short: "Phase 0",
+        title: "Phase 0: التجهيز والانطلاقة (Prep & Orientation)",
+        barClass: "bg-cyan-400",
+        badgeClass: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30",
+        weeks: [
+          {
+            id: "w0",
+            title: "Week 0: Orientation & Environment Setup",
+            baseDays: 3,
+            sections: [
+              {
+                title: "محاضرة التوجيه (Videos)",
+                items: [
+                  "1_Application_Introduction",
+                  "2_Web_application_definition",
+                  "3_Front_end",
+                  "4_Back_end",
+                  "5_Http_cycle",
+                  "6_MVC_VS_Web_API",
+                  "7_Course_Rules",
+                  "8_Content"
+                ]
+              },
+              {
+                title: "الورشة والتجهيز (Workshop & Prep Materials)",
+                items: [
+                  ["Workshop(1) - Git & GitHub (م/ رنيم)", "workshop"],
+                  ["Materials: How to download & setup environment", "extra"],
+                  ["Materials: How to setup MongoDB", "extra"],
+                  ["Materials: How to make API", "extra"],
+                  ["Materials: How to use LeetCode", "extra"],
+                  ["Materials: How to solve & upload assignments", "extra"]
+                ]
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        id: "p1",
+        short: "Phase 1",
+        title: "Phase 1: أساسيات JS و Node.js و Express (Weeks 1–6)",
+        barClass: "bg-sky-400",
+        badgeClass: "bg-sky-500/15 text-sky-300 border-sky-500/30",
+        weeks: [
+          {
+            id: "w1",
+            title: "Week 1: Node.js Intro & JS Part 1",
+            baseDays: 7,
+            sections: [
+              {
+                title: "First 3 hours",
+                items: [
+                  "1- Recap_on_web",
+                  "2- NodeJS_intro_part_1",
+                  "3- NodeJS_intro_part_2",
+                  "4- MVC",
+                  "5- How_to_run_js_code",
+                  "6- Variables_Values_Phases",
+                  "7- Scopes"
+                ]
+              },
+              {
+                title: "Second 3 hours",
+                items: [
+                  "1_Recap_DataTypes_Primitives",
+                  "2_Operators_Types",
+                  "3_Comparison_Operators",
+                  "4_Type_Coercion_Conversion",
+                  "5_Arithmetic_Operators",
+                  "6_Logical_Operators_Truthy_Falsy",
+                  "7_Assignment_Operators",
+                  "8_Concatenation_Ways",
+                  "9_If_statement_switch_case",
+                  "10_If_statement_Shortcut [ternary]"
+                ]
+              },
+              {
+                title: "الورشة والـ Assignment",
+                items: [
+                  ["Workshop(2) - JS Part 1 (م/ رنيم)", "workshop"],
+                  ["Assignment 1", "assignment"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w2",
+            title: "Week 2: JS Advanced & Web Fundamentals",
+            baseDays: 7,
+            sections: [
+              {
+                title: "First 3 hours",
+                items: [
+                  "1_Functions",
+                  "2_Named_Arguments_Positional",
+                  "3_Expression_Arrow_IIFE_Anonymous",
+                  "4_HOF_Callbacks",
+                  "5_Closures_Lexical_Scopes",
+                  "6_Objects_Add_Update_Delete",
+                  "7_Destructuring_Alias_Default_Rest",
+                  "8_Arrays",
+                  "9_Loop_with_Find_Filter_Map",
+                  "10_Loop_with_for-of_for-in_forEach",
+                  "11_Async_Callbacks_Promises"
+                ]
+              },
+              {
+                title: "Second 3 hours",
+                items: [
+                  "1_Servers_And_Types",
+                  "2_URL_URI_URN",
+                  "3_Protocols_HTTP_HTTPS",
+                  "4_DNS_DHCP",
+                  "5_Try_Ping_Locally",
+                  "6_NodeJs",
+                  "7_Run_NodeJs_Watch_Flag",
+                  "8_Nodemon_Node_Modules"
+                ]
+              },
+              {
+                title: "الورشة والـ Assignment",
+                items: [
+                  ["Workshop(3) - JS Part 2 (م/ رنيم)", "workshop"],
+                  ["Assignment 2", "assignment"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w3",
+            title: "Week 3: Node Core Modules",
+            baseDays: 5,
+            sections: [
+              {
+                title: "Core Modules Videos",
+                items: [
+                  "1_Recap_Modules_Types",
+                  "2_Path_Module_part_1",
+                  "3_Path_Module_part_2",
+                  "4_Events_Module_part_1",
+                  "5_Events_Module_part_2"
+                ]
+              },
+              {
+                title: "الورشة والـ Assignment",
+                items: [
+                  ["Workshop(4) - Core Modules (م/ رنيم)", "workshop"],
+                  ["Assignment 3", "assignment"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w4",
+            title: "Week 4: File System (FS)",
+            baseDays: 5,
+            sections: [
+              {
+                title: "FS Videos",
+                items: [
+                  "1_Recap_FS_intro",
+                  "2_FS_Methods_Low_High_Level",
+                  "3_Open_File_Low_level",
+                  "4_Read_Write_Close_Low_Level",
+                  "5_High_Level_Methods [read/write]",
+                  "6_Directories_Methods"
+                ]
+              },
+              {
+                title: "الورشة والـ Assignment",
+                items: [
+                  ["Workshop(5) - FS & HTTP Practice (م/ رنيم)", "workshop"],
+                  ["Assignment 4", "assignment"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w5",
+            title: "Week 5: HTTP, Streams & Express Intro",
+            baseDays: 7,
+            sections: [
+              {
+                title: "0_HTTP & Stream",
+                items: [
+                  "0_stream_intro",
+                  "1_create_stream",
+                  "2_stream_options",
+                  "3_stream_events",
+                  "4_stream_pause",
+                  "5_stream_pipe",
+                  "6_create_http_server",
+                  "7_server_response",
+                  "8_server_request_p1",
+                  "9_server_request_p2"
+                ]
+              },
+              {
+                title: "1_Express",
+                items: [
+                  "0_http_recap",
+                  "1_npm_intro",
+                  "2_express_intro",
+                  "3_response_type_p1",
+                  "4_res.json_vs_res.send",
+                  "5_response_type_p2",
+                  "6_app_methods",
+                  "7_middleware",
+                  "8_express.json"
+                ]
+              },
+              {
+                title: "الورشة والـ Assignment",
+                items: [
+                  ["Workshop(6) - Express (م/ رنيم)", "workshop"],
+                  ["Assignment 5", "assignment"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w6",
+            title: "Week 6: Node Internals & Express Deep Dive",
+            baseDays: 7,
+            sections: [
+              {
+                title: "0_Internals",
+                items: [
+                  "0_node_intro_p1",
+                  "1_single_vs_multi_thread",
+                  "2_node_arch",
+                  "3_event_loop",
+                  "4_event_loop 2",
+                  "5_thread_pool",
+                  "6_thread_pool 2",
+                  "7_os_scheduler",
+                  "8_V8"
+                ]
+              },
+              {
+                title: "0.1_Internals V2",
+                items: [
+                  "1- NodeJs life cycle",
+                  "2- Binding and V8 engine",
+                  "3- Event Loop",
+                  "4- Event Loop Phases",
+                  "5- Threads",
+                  "6- Kernel Thread Control"
+                ]
+              },
+              {
+                title: "1_Express",
+                items: [
+                  "0_express_recap",
+                  "1_store_data_in_file",
+                  "2_middleware",
+                  "3_params",
+                  "4_query",
+                  "5_app.all"
+                ]
+              },
+              {
+                title: "الورشة والـ Assignment",
+                items: [
+                  ["Workshop(7) - FE & BE Integration (م/ رنيم)", "workshop"],
+                  ["Assignment 6", "assignment"]
+                ]
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        id: "p2",
+        short: "Phase 2",
+        title: "Phase 2: قواعد البيانات SQL & NoSQL (Weeks 7–13)",
+        barClass: "bg-emerald-400",
+        badgeClass: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+        weeks: [
+          {
+            id: "w7",
+            title: "Week 7: ERD, Mapping & SQL Queries",
+            baseDays: 7,
+            sections: [
+              {
+                title: "0_ERD",
+                items: [
+                  "0_database_intro",
+                  "1_entity",
+                  "2_attribute",
+                  "3_attribute 2",
+                  "4_relation",
+                  "5_key_attribute",
+                  "6_key_attribute 2"
+                ]
+              },
+              {
+                title: "1_Mapping & SQL",
+                items: [
+                  "0_mapping",
+                  "1_DDL-create",
+                  "2_DDL-alter",
+                  "3_DDL-drop",
+                  "4_DML"
+                ]
+              },
+              {
+                title: "2_SQL_Queries_p1",
+                items: [
+                  "1_Recap_databases",
+                  "2_Sql_Queries_Categories",
+                  "3_Questions",
+                  "4_Implement_DDL_p1",
+                  "5_Implement_DDL_p2",
+                  "6_Indexes"
+                ]
+              },
+              {
+                title: "3_SQL_Queries_p2",
+                items: [
+                  "1_Recap",
+                  "2_FK_On_Delete_On_Update",
+                  "3_FK_part_2",
+                  "4_Insert_Update_Delete",
+                  "5_Truncate",
+                  "6_Joins",
+                  "7_More_Than_1_Join",
+                  "8_FK_Insertion_error",
+                  "9_Aggregations",
+                  "10_OrderBy_Limit_Offset"
+                ]
+              },
+              {
+                title: "الورشة والـ Assignment",
+                items: [
+                  ["Workshop(9) - MySQL (م/ رنيم)", "workshop"],
+                  ["Assignment 7", "assignment"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w8",
+            title: "Week 8: MySQL2 Driver & FE Integration",
+            baseDays: 6,
+            sections: [
+              {
+                title: "MySQL2 Videos",
+                items: [
+                  "1_Driver_Intro_DB_Structure",
+                  "2_Mysql2_features",
+                  "3_Prepared_Statement_SQL_Injection",
+                  "4_Express_app_recap",
+                  "5_Questions",
+                  "6_Sign_Up_API",
+                  "7_Login_API",
+                  "8_Mysql2_Promise",
+                  "9_FE_Integration"
+                ]
+              },
+              {
+                title: "الـ Assignment",
+                items: [["Assignment 8", "assignment"]]
+              }
+            ]
+          },
+          {
+            id: "w9",
+            title: "Week 9: Folder Structure & Sequelize Intro",
+            baseDays: 6,
+            sections: [
+              {
+                title: "Folder_Structure",
+                items: [
+                  "1_Big_Picture_EC5_VS_EC6",
+                  "2_EC5_VS_EC6_Detailed",
+                  "3_Modules_EC6_EC5",
+                  "4_QA",
+                  "5_Express_Design_Patterns",
+                  "6_Project_Folder_Structure",
+                  "7_Implement_Folder_Structure"
+                ]
+              },
+              {
+                title: "Sequelize Intro",
+                items: [
+                  "1_Session_Agenda",
+                  "2_ORM_Pros_Cons",
+                  "3_Sequelize_intro_Docs",
+                  "4_Folder_Structure_Recap",
+                  "5_DB_connection_options",
+                  "6_Questions_practice"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(8) - Folder Structure (م/ رنيم)", "workshop"]]
+              }
+            ]
+          },
+          {
+            id: "w10",
+            title: "Week 10: Sequelize Queries, ENV & Error Handling",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Sequelize",
+                items: [
+                  "1_Recap_Model_Definition",
+                  "2_Build_User_Model",
+                  "3_Questions",
+                  "4_Test_Insertion",
+                  "5_Build_Blog_Model_Associations",
+                  "6_Recap_Model_Query_Basics",
+                  "7_Create_BulkCreate_Build_Save",
+                  "8_Finders_Register_API",
+                  "9_Login_Profile_API",
+                  "10_ListAllUsers_Operators",
+                  "11_Upsert",
+                  "12_Update_VS_Save",
+                  "13_Paranoid_Restore",
+                  "14_Create_Blog_ListAllBlogs"
+                ]
+              },
+              {
+                title: "2_Env_Error_Handling",
+                items: [
+                  "1_What_Is_Env",
+                  "2_Set_Env_Cross_Env",
+                  "3_Dotenv_Module",
+                  "4_Config_File",
+                  "5_Env_Constants",
+                  "6_Error_Handling",
+                  "7_NoSQL_Pros_Cons"
+                ]
+              },
+              {
+                title: "الورشة والـ Assignment",
+                items: [
+                  ["Workshop(10) - Sequelize (م/ رنيم)", "workshop"],
+                  ["Assignment 9", "assignment"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w11",
+            title: "Week 11: MongoDB Concepts & CAP Theorem",
+            baseDays: 5,
+            sections: [
+              {
+                title: "MongoDB Concepts",
+                items: [
+                  "1_Sql_vs_NoSQL",
+                  "2_CAP_Theory",
+                  "3_Mongodb_Cassandra",
+                  "4_Sharding_Polyglot",
+                  "5_MongoDB_Installations",
+                  "6_Sql_To_MongoDB_Mapping",
+                  "7_Update_Delete_Aggregation"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(11) - MongoDB (م/ رنيم)", "workshop"]]
+              }
+            ]
+          },
+          {
+            id: "w12",
+            title: "Week 12: MongoShell & MongoClient",
+            baseDays: 6,
+            sections: [
+              {
+                title: "1_MongoShell_1",
+                items: [
+                  "1_Questions",
+                  "2_CreateCollections",
+                  "3_Capped_Collection",
+                  "4_BSON_ObjectId",
+                  "5_Comparison_Operators",
+                  "6_Regex_Operators",
+                  "7_Array_Operators",
+                  "8_Type_Operator"
+                ]
+              },
+              {
+                title: "2_MongoShell_2_Client",
+                items: [
+                  "1_Update_Delete_Methods",
+                  "2_Pagination_Limit_Skip_Sort",
+                  "3_Indexes",
+                  "4_Aggregations",
+                  "5_Connect_Mongo_Client",
+                  "6_Insert_Find_toArray"
+                ]
+              },
+              {
+                title: "ورشة إضافية (Aggregation)",
+                items: [["Workshop 11 - SDLC & Aggregation (م/ معاذ عبد المنعم)", "extra"]]
+              }
+            ]
+          },
+          {
+            id: "w13",
+            title: "Week 13: Mongoose ODM",
+            baseDays: 6,
+            sections: [
+              {
+                title: "1_Mongoose_p1",
+                items: [
+                  "1_What_Is_ODM",
+                  "2_Mongoose_intro",
+                  "3_DB_Connection",
+                  "4_Build_Schema_Model",
+                  "5_Insertion_Methods",
+                  "6_Finders"
+                ]
+              },
+              {
+                title: "2_Mongoose_p2",
+                items: [
+                  "1_Update_Method",
+                  "2_Save_Run_Validators",
+                  "3_Finders_With_Updates",
+                  "4_Delete_Methods",
+                  "5_Getters_VirtualGetters",
+                  "6_Relationship_Child_Parent",
+                  "7_Virtual_Populate"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(12) - Mongoose (م/ رنيم)", "workshop"]]
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        id: "p3",
+        short: "Phase 3",
+        title: "Phase 3: مشروع Saraha — الأمان، Auth، Redis، و AWS (Weeks 14–21)",
+        barClass: "bg-amber-400",
+        badgeClass: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+        weeks: [
+          {
+            id: "w14",
+            title: "Week 14: Project Setup & Encryption",
+            baseDays: 6,
+            sections: [
+              {
+                title: "1_Project_Setup",
+                items: [
+                  "1_SDLC_SSDLC",
+                  "2_Implement_SDLC_Saraha",
+                  "3_Project_Structure",
+                  "4_DB_Connection_Setup",
+                  "5_User_Model_Safety"
+                ]
+              },
+              {
+                title: "2_Encryption",
+                items: [
+                  "1_Encryption_Hashing_Purpose",
+                  "2_Symmetric_Asymmetric",
+                  "3_Crypto_vs_CryptoJs",
+                  "4_Encrypt_Decrypt_Explanation",
+                  "5_Symmetric_Encrypt",
+                  "6_Symmetric_Decrypt",
+                  "7_Asymmetric_Encryption"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(14) - PS & SDLC (م/ رنيم)", "workshop"]]
+              }
+            ]
+          },
+          {
+            id: "w15",
+            title: "Week 15: Hashing (Bcrypt & Argon2)",
+            baseDays: 5,
+            sections: [
+              {
+                title: "Hashing Videos",
+                items: [
+                  "1_Hashing_Concept",
+                  "2_Hashing_Vulnerabilities",
+                  "3_Bcrypt_SHA256",
+                  "4_Fast_Hashing",
+                  "5_CPU_GPU_Bcrypt_Argon2",
+                  "6_Implement_bcrypt",
+                  "7_Implement_argon2"
+                ]
+              },
+              {
+                title: "الـ Assignment",
+                items: [["Assignment 15", "assignment"]]
+              }
+            ]
+          },
+          {
+            id: "w16",
+            title: "Week 16: Repository Pattern & JWT",
+            baseDays: 6,
+            sections: [
+              {
+                title: "1_Repository_Pattern",
+                items: [
+                  "1_Repository_Pattern",
+                  "2_Implement_Repo_Pattern",
+                  "3_Message_Model_Repo",
+                  "4_What_Is_Auth_Authz"
+                ]
+              },
+              {
+                title: "2_JWT",
+                items: [
+                  "1_Recap",
+                  "2_JWT_DOCS",
+                  "3_Sign_And_Verify",
+                  "4_Tokens_Utility",
+                  "5_Decode_Token",
+                  "6_Detect_Signature_By_Role"
+                ]
+              }
+            ]
+          },
+          {
+            id: "w17",
+            title: "Week 17: Auth Middlewares, Refresh Token & Social Login",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Auth_Middlewares",
+                items: [
+                  "1_Authentication_middleware",
+                  "2_Update_User_API",
+                  "3_Auth_Types [Bearer/Basic]",
+                  "4_Authorization",
+                  "5_Refresh_Token"
+                ]
+              },
+              {
+                title: "2_Social_Login",
+                items: [
+                  "1_Recap_SocialLogin",
+                  "2_OAuth_Setup",
+                  "3_Integrate_FE_BE_CORS",
+                  "4_Register_Login_APIs",
+                  "5_Unified_Success_Response"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(13) - Social Login (م/ رنيم)", "workshop"]]
+              }
+            ]
+          },
+          {
+            id: "w18",
+            title: "Week 18: Validation (Joi) & File Uploading (Multer)",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Validation",
+                items: [
+                  "1_App_Error_Class",
+                  "2_What_Is_Validation",
+                  "3_Validation_Middleware_p1",
+                  "4_Validation_Middleware_p2",
+                  "5_Joi_Strings",
+                  "6_Email_Numbers",
+                  "7_Booleans_Dates_Ref",
+                  "8_Object_Arrays",
+                  "9_Custom_Rule",
+                  "10_General_Validators"
+                ]
+              },
+              {
+                title: "2_File_Uploading",
+                items: [
+                  "1_Upload_concept",
+                  "2_Multer_Docs",
+                  "3_Multer_local_disk",
+                  "4_File_Filter",
+                  "5_Dynamic_Destination",
+                  "6_Limits",
+                  "7_Upload_Profile_Picture",
+                  "8_Express_Static"
+                ]
+              },
+              {
+                title: "الورش",
+                items: [
+                  ["Workshop(15) - Cloudinary (م/ رنيم)", "workshop"],
+                  ["Workshop(16) - Joi (م/ رنيم)", "workshop"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w19",
+            title: "Week 19: Redis, Revoke Token & Nodemailer",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Redis",
+                items: [
+                  "1_What_is_redis",
+                  "2_Redis_usage",
+                  "3_Setup_Redis_Upstash",
+                  "4_Strings_Numbers_Generics",
+                  "5_Hashes",
+                  "6_Sets",
+                  "7_Lists",
+                  "8_Connect_redis_Node",
+                  "9_Redis_Services"
+                ]
+              },
+              {
+                title: "2_Revoke_token_nodemailer",
+                items: [
+                  "1_Generate_JWTID",
+                  "2_Logout_Revoke_Tokens",
+                  "3_Nodemailer_Docs",
+                  "4_Implement_SendMail",
+                  "5_Send_Verification_OTP",
+                  "6_Verify_Email_API"
+                ]
+              },
+              {
+                title: "الورش",
+                items: [
+                  ["Workshop(19) - Cron-job (م/ رنيم)", "workshop"],
+                  ["Workshop(24) - Redis (م/ رنيم)", "workshop"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w20",
+            title: "Week 20: Helmet, Rate Limiter, Transactions & Deployment",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Helmet_Rate_Limiter",
+                items: [
+                  "1_Helmet_Intro",
+                  "2_XSS_Clickjacking",
+                  "3_MIME_Sniffing",
+                  "4_Rate_Limiter_Attacks",
+                  "5_Rate_Limiting_Config",
+                  "6_Key_Generator",
+                  "7_IP_Country_Code",
+                  "8_Store_Option"
+                ]
+              },
+              {
+                title: "2_Transactions_Deployment",
+                items: [
+                  "1_Transactions_Setup",
+                  "2_Usecases_Limits",
+                  "3_Pros_Cons",
+                  "4_Implement_Transactions_p1",
+                  "5_Implement_Transactions_p2",
+                  "6_Cleaning_Code",
+                  "7_MongoAtlas",
+                  "8_Push_Code_Github"
+                ]
+              },
+              {
+                title: "ورشة إضافية للنشر",
+                items: [["17 - Vercel Deployment (م/ علي حسن)", "extra"]]
+              }
+            ]
+          },
+          {
+            id: "w21",
+            title: "Week 21: AWS EC2, PM2, SSH & Postman Scripts",
+            baseDays: 6,
+            sections: [
+              {
+                title: "AWS EC2 & Deployment Videos",
+                items: [
+                  "1_Session_Goal",
+                  "2_AWS_Root_IAM",
+                  "3_Launch_EC2",
+                  "4_Connect_SSH",
+                  "5_Clone_Code",
+                  "6_PM2_Setup",
+                  "7_PM2_Ngrok",
+                  "8_Self_Signed_SSL",
+                  "9_Postman_Env_Scripts"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        id: "p4",
+        short: "Phase 4",
+        title: "Phase 4: TypeScript + OOP + Social Media App (Weeks 22–26 + GraphQL)",
+        barClass: "bg-rose-400",
+        badgeClass: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+        weeks: [
+          {
+            id: "w22",
+            title: "Week 22: TypeScript & OOP",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_TS",
+                items: [
+                  "1_Next_Sessions_Plan",
+                  "2_What_Is_Typescript",
+                  "3_Run_TS",
+                  "4_Specify_Data_Types",
+                  "5_Enums_Literal_Intersection",
+                  "6_Interfaces",
+                  "7_Functions",
+                  "8_Generics",
+                  "9_Type_assertion_Unknown_Any"
+                ]
+              },
+              {
+                title: "2_OOP",
+                items: [
+                  "1- OOP Paradigms",
+                  "2- Classes_Objects_Getters_Setters",
+                  "3- Static_Encapsulation",
+                  "4- Inheritance_Polymorphism"
+                ]
+              },
+              {
+                title: "الورش",
+                items: [
+                  ["Workshop(20) - TS (م/ رنيم)", "workshop"],
+                  ["Workshop(21) - OOP (م/ رنيم)", "workshop"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w23",
+            title: "Week 23: Social App Setup & Zod Validation",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Social_App_Setup",
+                items: [
+                  "1_Social_Media_Review",
+                  "2_App_Setup_TS",
+                  "3_Add_Env_With_Types",
+                  "4_Module_Routers",
+                  "5_Services",
+                  "6_Repository_Pattern_Types",
+                  "7_Service_Repo_Injection"
+                ]
+              },
+              {
+                title: "2_Common_services_ZOD",
+                items: [
+                  "1_Error_class",
+                  "2_Security_Service",
+                  "3_Token_Service",
+                  "4_Use_Token_Service",
+                  "5_DTO",
+                  "6_ZOD_Intro",
+                  "7_Validation_Middleware",
+                  "8_Type_Inferring",
+                  "9_Zod_Schema"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(22) - Zod (م/ رنيم)", "workshop"]]
+              }
+            ]
+          },
+          {
+            id: "w24",
+            title: "Week 24: Mongoose Middlewares & AWS S3 Bucket",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Mongoose_Middlewares",
+                items: [
+                  "1_Recap_User_SignUp",
+                  "2_Authentication_Flow",
+                  "3_Clean_SignUp_API",
+                  "4_Mongoose_Middlewares_Intro",
+                  "5_Middleware_Types",
+                  "6_Document_Middlewares",
+                  "7_Query_Middlewares"
+                ]
+              },
+              {
+                title: "2_S3_Bucket",
+                items: [
+                  "1_What_Is_S3",
+                  "2_S3_Requirements_Create",
+                  "3_AWS_SDKs_Access_Keys",
+                  "4_Build_S3_Client_FileService",
+                  "5_Pre_SignedUrl",
+                  "6_Delete_File_And_Files"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(25) - Hooks (م/ رنيم)", "workshop"]]
+              }
+            ]
+          },
+          {
+            id: "w25",
+            title: "Week 25: Posts, AWS Lambda & FCM Notifications",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Posts",
+                items: [
+                  "1_Auth_Middleware",
+                  "2_Post_Model",
+                  "3_Add_Post_API",
+                  "4_Delete_User_With_Posts",
+                  "5_List_All_Posts_API"
+                ]
+              },
+              {
+                title: "2_Lambda_Notifications",
+                items: [
+                  "1_Lambda_Definition",
+                  "2_Create_AWS_Lambda",
+                  "3_Lambda_Trigger_S3",
+                  "4_Lambda_File_Function",
+                  "5_Notifications_FCM",
+                  "6_Phase2_Frontend",
+                  "7_Phase3_Backend",
+                  "8_Test_Notifications_Flow"
+                ]
+              },
+              {
+                title: "ورشة إضافية (AWS Lambda)",
+                items: [["Workshop 22 - AWS Lambda (م/ رنا مصطفى)", "extra"]]
+              }
+            ]
+          },
+          {
+            id: "w26",
+            title: "Week 26: Socket.io Real-Time Chat",
+            baseDays: 6,
+            sections: [
+              {
+                title: "Socket.io Chat Videos",
+                items: [
+                  "01- Socket_Basics",
+                  "1.2- SocketIO_structure",
+                  "1.3- Socket_middlewares",
+                  "02- Chat_part_1",
+                  "2.1- Chat_part_2_OVO",
+                  "2.2- Chat_part_3_create_group",
+                  "2.3- Chat_part_4_OVM"
+                ]
+              },
+              {
+                title: "ورشة إضافية (Socket.io)",
+                items: [["Workshop 27 - Socket.io (م/ رنا مصطفى)", "extra"]]
+              }
+            ]
+          },
+          {
+            id: "w_graphql",
+            title: "GraphQL Module (Standalone)",
+            baseDays: 4,
+            sections: [
+              {
+                title: "GraphQL Videos",
+                items: [
+                  "1_GraphQl_introduction_part1",
+                  "1.1_GraphQl_handler_part_2",
+                  "1.2_GraphQl_Response_part_3",
+                  "1.3_GraphQl_Context_part_4",
+                  "1.4_GraphQl_structure_part_5"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(28) - GraphQL (م/ رنيم)", "workshop"]]
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        id: "p5",
+        short: "Phase 5",
+        title: "Phase 5: NestJS + E-Commerce App + Stripe (Weeks 27–30)",
+        barClass: "bg-violet-400",
+        badgeClass: "bg-violet-500/15 text-violet-300 border-violet-500/30",
+        weeks: [
+          {
+            id: "w27",
+            title: "Week 27: NestJS Foundations",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Foundations_1",
+                items: [
+                  "1_Nest_Introduction_Express_VS_Nest",
+                  "2_Project_Setup_Linting",
+                  "3_Files_Explanation",
+                  "4_Fix_Linting_Error",
+                  "5_New_Resource_Decorators",
+                  "6_Request_Object_Params",
+                  "7_Responses_Types",
+                  "8_Controller_Options"
+                ]
+              },
+              {
+                title: "2_Foundations_2",
+                items: [
+                  "1_Recap",
+                  "2_Providers_IOC",
+                  "3_Dependency_Injection",
+                  "4_Modules_Root_Feature",
+                  "5_Pipes_BuiltIn",
+                  "6_Custom_Transformation_Pipes",
+                  "7_Schema_Based_Validation_DTO"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(31) - NestJS Part 1 (م/ رنيم)", "workshop"]]
+              }
+            ]
+          },
+          {
+            id: "w28",
+            title: "Week 28: E-Commerce Setup, Auth, Interceptors & Caching",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Setup_DB",
+                items: [
+                  "1_Recap_Class_Validator",
+                  "2_Custom_Rule_Validator",
+                  "3_Ecommerce_Requirements",
+                  "4_Folder_Structure",
+                  "5_Connect_MongoDB",
+                  "6_Schemas_Models_Hooks",
+                  "7_User_Schema",
+                  "8_User_Model_Repo",
+                  "9_User_Hook"
+                ]
+              },
+              {
+                title: "2_Auth_ENV",
+                items: [
+                  "1_ENV_Config_Module",
+                  "2_Custom_Configuration",
+                  "3_isGlobal_forFeature",
+                  "4_JwtService_Token_Service",
+                  "5_Middlewares_Explanation",
+                  "6_Class_Based_Middleware",
+                  "7_Functional_Middleware",
+                  "8_Guards_ExecutionContext",
+                  "9_Authentication_Guard",
+                  "10_Authorization_Guard"
+                ]
+              },
+              {
+                title: "3_Decorators_Interceptors_Caching",
+                items: [
+                  "1_Custom_Decorator_Reflector",
+                  "2_SetMetadata",
+                  "3_Decorator_Composition",
+                  "4_Interceptors_Unified_Response",
+                  "5_Caching_In_Memory",
+                  "6_Caching_Redis_KeyV",
+                  "7_Loggers"
+                ]
+              },
+              {
+                title: "الورشة",
+                items: [["Workshop(32) - NestJS Part 2 (م/ رنيم)", "workshop"]]
+              }
+            ]
+          },
+          {
+            id: "w29",
+            title: "Week 29: Product Flow, S3, Cart, Order & Stripe",
+            baseDays: 7,
+            sections: [
+              {
+                title: "1_Category_Brand_Product",
+                items: [
+                  "1_Category_Model_APIs",
+                  "2_Brand_Model_APIs",
+                  "3_Build_S3_Client",
+                  "4_Build_FileService_Upload",
+                  "5_Global_Module_Auth",
+                  "6_Product_Model_APIs"
+                ]
+              },
+              {
+                title: "2_Cart_Order_Payment",
+                items: [
+                  "1_Cart_Model_Add",
+                  "2_Remove_From_Cart_API",
+                  "3_Update_Product_Get",
+                  "4_Order_Model_Create",
+                  "5_Stripe_Checkout_Intro",
+                  "6_Create_Checkout_Session",
+                  "7_Local_Webhook",
+                  "8_CancelOrder_Refund"
+                ]
+              }
+            ]
+          },
+          {
+            id: "w30",
+            title: "Week 30: Socket.io & GraphQL with NestJS",
+            baseDays: 5,
+            sections: [
+              {
+                title: "NestJS Socket.io & GraphQL Videos",
+                items: [
+                  "1_Socket.io_with_NestJs",
+                  "2_GraphQL_module_test_resolver",
+                  "3_Order_Types_graphql",
+                  "4_Update_Types_populate",
+                  "5_Args_with_graphql",
+                  "6_GraphQL_Auth"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        id: "p6",
+        short: "Phase 6",
+        title: "Phase 6: الاختبارات، Docker، EJS + ما بعد الكورس",
+        barClass: "bg-fuchsia-400",
+        badgeClass: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30",
+        weeks: [
+          {
+            id: "w_jest",
+            title: "Unit & E2E Testing [Jest]",
+            baseDays: 4,
+            sections: [
+              {
+                title: "Jest Testing Videos",
+                items: [
+                  "1- Testing introduction",
+                  "2- Unit and E2E testing Config",
+                  "3- Describe & BeforeAll & AfterAll",
+                  "4- E2E-List product API",
+                  "5- E2E-Create product API"
+                ]
+              }
+            ]
+          },
+          {
+            id: "w_docker",
+            title: "Docker & Containerization",
+            baseDays: 5,
+            sections: [
+              {
+                title: "المحاضرة والورش (Docker)",
+                items: [
+                  ["Docker_23 / Week25(Docker) (م/ محمود علوان أو أحمد عبد الغني)", "extra"],
+                  ["Workshop(29) - Docker Part 1 (م/ رنيم)", "workshop"],
+                  ["Workshop(30) - Docker Part 2 (م/ رنيم)", "workshop"]
+                ]
+              }
+            ]
+          },
+          {
+            id: "w_ejs",
+            title: "EJS Template Engine [اختياري]",
+            baseDays: 4,
+            sections: [
+              {
+                title: "EJS Videos",
+                items: [
+                  "1- what is EJS",
+                  "2- res.render & res.redirect",
+                  "3- APIs separation",
+                  "4- EJS test API",
+                  "5- signUp and confirmation",
+                  "6- session and flash",
+                  "7- login-generateSession",
+                  "8- auth middleware",
+                  "9- authorization middleware",
+                  "10- validation middleware",
+                  "11- upload profile picture",
+                  "12- log out",
+                  "13- another way to log out"
+                ]
+              }
+            ]
+          },
+          {
+            id: "w_roadmap",
+            title: "ما بعد الكورس [Roadmap.sh Bonus]",
+            baseDays: 10,
+            isBonus: true,
+            sections: [
+              {
+                title: "توسع ما بعد الكورس (Roadmap.sh)",
+                items: [
+                  ["CI/CD Pipelines (GitHub Actions)", "extra"],
+                  ["Web Servers & Reverse Proxy (Nginx)", "extra"],
+                  ["Message Brokers (RabbitMQ / Kafka)", "extra"],
+                  ["Microservices & Observability", "extra"]
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    // Normalize with stable item IDs
+    const CURRICULUM = PHASES_RAW.map((phase) => ({
+      ...phase,
+      weeks: phase.weeks.map((week) => ({
+        ...week,
+        phaseId: phase.id,
+        phaseShort: phase.short,
+        isBonus: !!week.isBonus,
+        sections: week.sections.map((sec, sIdx) => ({
+          title: sec.title,
+          items: sec.items.map((entry, iIdx) => {
+            const isArr = Array.isArray(entry);
+            return {
+              id: `${week.id}_s${sIdx}_i${iIdx}`,
+              title: isArr ? entry[0] : entry,
+              type: isArr ? entry[1] : "video",
+              custom: false
+            };
+          })
+        }))
+      }))
+    }));
+
+    const TYPE_BADGES = {
+      video: { label: "فيديو", cls: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30" },
+      workshop: { label: "ورشة", cls: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
+      assignment: { label: "Assignment", cls: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
+      extra: { label: "إضافة", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+    };
+
+    const FILTER_PILLS = [
+      { id: "all", label: "الكل" },
+      { id: "remaining", label: "المتبقي" },
+      { id: "completed", label: "المكتمل" },
+      { id: "review", label: "محتاج مراجعة ⭐" },
+      { id: "video", label: "فيديوهات" },
+      { id: "workshop", label: "ورش" },
+      { id: "assignment", label: "Assignments" },
+      { id: "extra", label: "إضافات" }
+    ];
+
+    const PACE_CONFIG = {
+      intensive: { label: "مكثف (أسبوع = 5 أيام)", factor: 5 / 7 },
+      standard: { label: "قياسي (أسبوع = 7 أيام)", factor: 1 },
+      relaxed: { label: "مريح مع الدراسة (أسبوع = 9 أيام)", factor: 9 / 7 }
+    };
+
+    // =========================================================================
+    // 2. STATE MODEL + FIREBASE FIRESTORE & OFFLINE FALLBACK PERSISTENCE
+    // =========================================================================
+    const LOCAL_KEY = "route_backend_tracker_v3";
+
+    function createDefaultState() {
+      return {
+        checked: {},          // { [itemId]: true }
+        reviewFlags: {},      // { [itemId]: true }
+        notes: {},            // { [weekId]: string }
+        links: {},            // { [weekId]: { drive: "", github: "" } }
+        customItems: {},      // { [weekId]: [{ id, title, type }] }
+        startDate: "2026-11-28",
+        paceMode: "standard", // intensive | standard | relaxed
+        includeBonus: false,
+        extensions: {},       // { [weekId]: number }
+        streak: {
+          current: 0,
+          best: 0,
+          lastActiveDate: null,
+          todayDate: null,
+          todayItems: 0,
+          todayMins: 0
+        },
+        timerSessions: 0,
+        totalFocusedMinutes: 0,
+        timerHistory: [],     // [{ dateISO, timeStr, minutes, label }]
+        updatedAt: 0
+      };
+    }
+
+    function sanitizeState(raw) {
+      const def = createDefaultState();
+      if (!raw || typeof raw !== "object") return def;
+      return {
+        checked: raw.checked && typeof raw.checked === "object" ? raw.checked : {},
+        reviewFlags: raw.reviewFlags && typeof raw.reviewFlags === "object" ? raw.reviewFlags : {},
+        notes: raw.notes && typeof raw.notes === "object" ? raw.notes : {},
+        links: raw.links && typeof raw.links === "object" ? raw.links : {},
+        customItems: raw.customItems && typeof raw.customItems === "object" ? raw.customItems : {},
+        startDate: /^\d{4}-\d{2}-\d{2}$/.test(raw.startDate || "") ? raw.startDate : def.startDate,
+        paceMode: PACE_CONFIG[raw.paceMode] ? raw.paceMode : "standard",
+        includeBonus: Boolean(raw.includeBonus),
+        extensions: raw.extensions && typeof raw.extensions === "object" ? raw.extensions : {},
+        streak: { ...def.streak, ...(raw.streak || {}) },
+        timerSessions: Number(raw.timerSessions) || 0,
+        totalFocusedMinutes: Number(raw.totalFocusedMinutes) || 0,
+        timerHistory: Array.isArray(raw.timerHistory) ? raw.timerHistory.slice(0, 20) : [],
+        updatedAt: Number(raw.updatedAt) || 0
+      };
+    }
+
+    function readLocalFallback() {
+      try {
+        const s = window.localStorage.getItem(LOCAL_KEY);
+        return s ? sanitizeState(JSON.parse(s)) : createDefaultState();
+      } catch {
+        return createDefaultState();
+      }
+    }
+
+    function writeLocalFallback(obj) {
+      try {
+        window.localStorage.setItem(LOCAL_KEY, JSON.stringify(obj));
+      } catch {
+        // Ignore storage quota / iframe sandbox errors
+      }
+    }
+
+    let state = readLocalFallback();
+
+    // Ephemeral UI State
+    const ui = {
+      activeTab: "home",
+      activeFilter: "all",
+      searchQuery: "",
+      expandedPhases: new Set(["p0", "p1"]),
+      expandedWeeks: new Set(["w0"]),
+      openNotesWeeks: new Set(),
+      allPhasesExpanded: false,
+      timelinePhaseFilter: "all",
+      expandedTimelineSessions: new Set(["w0"])
+    };
+
+    // Firebase runtime handles
+    const appId = typeof __app_id !== "undefined" ? __app_id : "route-backend-tracker";
+    let firebaseReady = false;
+    let auth = null;
+    let db = null;
+    let currentUser = null;
+    let unsubSnapshot = null;
+    let syncTimer = null;
+
+    function updateSyncUI(status, detail) {
+      const dot = document.getElementById("syncDot");
+      const label = document.getElementById("syncLabel");
+      const statsDesc = document.getElementById("statsSyncDesc");
+      const statsBtn = document.getElementById("statsSyncBtn");
+      const modalInfo = document.getElementById("syncModalInfo");
+      const gBtn = document.getElementById("googleSignInBtn");
+      const outBtn = document.getElementById("signOutBtn");
+
+      if (status === "synced-google") {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400 shrink-0";
+        const name = currentUser?.displayName || currentUser?.email || "حساب Google";
+        label.textContent = "متزامن سحابياً ✓";
+        statsDesc.textContent = `متزامن لحظياً على السحابة بحساب: ${name}`;
+        statsBtn.textContent = "إدارة الحساب / تسجيل الخروج";
+        modalInfo.innerHTML = `<div class="font-bold text-emerald-300">متزامن سحابياً عبر Google ✓</div><div>الحساب: <span class="font-mono text-white">${escapeHtml(name)}</span></div><div class="text-slate-400">كل تعديلاتك تُحفظ لحظياً ويمكن فتحها من أي جهاز.</div>`;
+        gBtn.classList.add("hidden");
+        outBtn.classList.remove("hidden");
+      } else if (status === "synced-anon") {
+        dot.className = "w-2 h-2 rounded-full bg-cyan-400 shrink-0";
+        label.textContent = "متزامن سحابياً ✓";
+        statsDesc.textContent = "تم تفعيل الحفظ السحابي التلقائي لجلستك الحالية. اربط حساب Google للمزامنة بين الموبايل واللاب.";
+        statsBtn.textContent = "ربط بحساب Google";
+        modalInfo.innerHTML = `<div class="font-bold text-cyan-300">الحفظ السحابي مفعّل ✓</div><div>معرّف الجلسة: <span class="font-mono text-[11px] text-slate-300 break-all">${escapeHtml(currentUser?.uid || "")}</span></div><div class="text-slate-400">يمكنك ربط حساب Google للمزامنة عبر الموبايل واللاب توب.</div>`;
+        gBtn.classList.remove("hidden");
+        outBtn.classList.add("hidden");
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-amber-400 shrink-0";
+        label.textContent = "محلي • مزامنة سحابية";
+        statsDesc.textContent = detail || "التقدم محفوظ محلياً على هذا الجهاز. يمكنك استخدام التصدير والاستيراد أو ربط حساب سحابي.";
+        statsBtn.textContent = "مزامنة سحابية / Google";
+        modalInfo.innerHTML = `<div class="font-bold text-amber-300">وضع الحفظ المحلي (Offline Ready)</div><div class="text-slate-400">${escapeHtml(detail || "البيانات محفوظة تلقائياً في المتصفح. لتفعيل المزامنة السحابية بين الأجهزة سجل الدخول بـ Google.")}</div>`;
+        gBtn.classList.remove("hidden");
+        outBtn.classList.add("hidden");
+      }
+    }
+
+    function persistState(immediateCloud = false) {
+      state.updatedAt = Date.now();
+      writeLocalFallback(state);
+
+      if (!firebaseReady || !db || !currentUser) return;
+
+      const pushToCloud = async () => {
+        if (!currentUser || !db) return;
+        try {
+          const ref = doc(db, "artifacts", appId, "users", currentUser.uid, "tracker", "state");
+          await setDoc(ref, { payload: JSON.stringify(state), updatedAt: state.updatedAt }, { merge: true });
+        } catch (err) {
+          console.error("Cloud sync write error:", err);
+        }
+      };
+
+      clearTimeout(syncTimer);
+      if (immediateCloud) {
+        pushToCloud();
+      } else {
+        syncTimer = setTimeout(pushToCloud, 650);
+      }
+    }
+
+    function subscribeUserCloudDoc(user) {
+      if (unsubSnapshot) {
+        unsubSnapshot();
+        unsubSnapshot = null;
+      }
+      if (!user || !db) return;
+
+      const ref = doc(db, "artifacts", appId, "users", user.uid, "tracker", "state");
+      unsubSnapshot = onSnapshot(
+        ref,
+        (snap) => {
+          if (snap.metadata.hasPendingWrites) return;
+          if (snap.exists()) {
+            try {
+              const data = snap.data();
+              const parsed = data?.payload ? sanitizeState(JSON.parse(data.payload)) : sanitizeState(data);
+              if (parsed.updatedAt > (state.updatedAt || 0)) {
+                state = parsed;
+                writeLocalFallback(state);
+                renderAll();
+              }
+            } catch (err) {
+              console.error("Failed parsing cloud state:", err);
+            }
+          } else {
+            // Seed cloud doc with local state if user already has progress
+            persistState(true);
+          }
+        },
+        (error) => {
+          console.error("Firestore onSnapshot error:", error);
+          updateSyncUI("local", "تعذر الاتصال بالسحابة حالياً، تم التحويل للحفظ المحلي تلقائياً.");
+        }
+      );
+    }
+
+    async function initFirebaseSync() {
+      try {
+        if (typeof __firebase_config === "undefined" || !__firebase_config) {
+          updateSyncUI("local", "تم التشغيل في الوضع المحلي (Offline). يمكنك التصدير والاستيراد بملف JSON بين أجهزتك.");
+          return;
+        }
+        const config = typeof __firebase_config === "string" ? JSON.parse(__firebase_config) : __firebase_config;
+        if (!config || !config.apiKey) {
+          updateSyncUI("local");
+          return;
+        }
+
+        const [appMod, authMod, fsMod] = await Promise.all([
+          import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+          import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"),
+          import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+        ]);
+        ({ initializeApp } = appMod);
+        ({ getAuth, signInWithCustomToken, signInAnonymously, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = authMod);
+        ({ getFirestore, doc, setDoc, onSnapshot } = fsMod);
+
+        const app = initializeApp(config);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        firebaseReady = true;
+
+        // RULE 3: Authenticate FIRST before any Firestore operations
+        if (typeof __initial_auth_token !== "undefined" && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+          currentUser = user;
+          if (user) {
+            const isGoogle = user.providerData?.some((p) => p.providerId === "google.com") || (!user.isAnonymous && !!user.email);
+            updateSyncUI(isGoogle ? "synced-google" : "synced-anon");
+            subscribeUserCloudDoc(user);
+          } else {
+            if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
+            updateSyncUI("local");
+          }
+        });
+      } catch (err) {
+        console.error("Firebase init fallback:", err);
+        firebaseReady = false;
+        updateSyncUI("local", "تعذر الاتصال بالسحابة، التطبيق يعمل بالكامل بالحفظ المحلي.");
+      }
+    }
+
+    // =========================================================================
+    // 3. DATE HELPERS & AUTO-RIPPLE TIMELINE ENGINE
+    // =========================================================================
+    function parseISODate(iso) {
+      const [y, m, d] = (iso || "2026-11-28").split("-").map(Number);
+      return new Date(y, (m || 1) - 1, d || 1, 12, 0, 0);
+    }
+
+    function toISODate(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const d = String(dateObj.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function getTodayISO() {
+      return toISODate(new Date());
+    }
+
+    function getYesterdayISO() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return toISODate(d);
+    }
+
+    function addDays(dateObj, days) {
+      const copy = new Date(dateObj.getTime());
+      copy.setDate(copy.getDate() + days);
+      return copy;
+    }
+
+    function diffDays(dateA, dateB) {
+      return Math.round((dateA.getTime() - dateB.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    const fmtLongAr = new Intl.DateTimeFormat("ar-EG", { day: "numeric", month: "long", year: "numeric" });
+    const fmtShortAr = new Intl.DateTimeFormat("ar-EG", { day: "numeric", month: "short" });
+    const fmtWeekdayAr = new Intl.DateTimeFormat("ar-EG", { weekday: "short", day: "numeric", month: "short" });
+
+    function formatArabicDate(dateObj, style = "long") {
+      try {
+        if (style === "short") return fmtShortAr.format(dateObj);
+        if (style === "weekday") return fmtWeekdayAr.format(dateObj);
+        return fmtLongAr.format(dateObj);
+      } catch {
+        return toISODate(dateObj);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function normalizeUrl(url) {
+      const trimmed = (url || "").trim();
+      if (!trimmed) return "";
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      return `https://${trimmed}`;
+    }
+
+    function getMergedPhases() {
+      return CURRICULUM.map((phase) => ({
+        ...phase,
+        weeks: phase.weeks.map((week) => {
+          const custom = state.customItems[week.id] || [];
+          const sections = [...week.sections];
+          if (custom.length > 0) {
+            sections.push({
+              title: "عناصر مخصصة أضفتها",
+              items: custom.map((c) => ({ ...c, custom: true }))
+            });
+          }
+          return { ...week, sections };
+        })
+      }));
+    }
+
+    function flattenItems(phases) {
+      const list = [];
+      for (const phase of phases) {
+        for (const week of phase.weeks) {
+          for (const sec of week.sections) {
+            for (const item of sec.items) {
+              list.push({
+                ...item,
+                phaseId: phase.id,
+                phaseShort: phase.short,
+                weekId: week.id,
+                weekTitle: week.title,
+                isBonus: week.isBonus,
+                sectionTitle: sec.title
+              });
+            }
+          }
+        }
+      }
+      return list;
+    }
+
+    /**
+     * Auto-Ripple Loop Engine:
+     * Computes exact sequential start/end dates & internal session schedule for every module.
+     * Any extension on module i shifts all modules > i immediately.
+     */
+    function computeTimelineSchedule(phases) {
+      const factor = (PACE_CONFIG[state.paceMode] || PACE_CONFIG.standard).factor;
+      const startObj = parseISODate(state.startDate);
+      const todayObj = parseISODate(getTodayISO());
+
+      let cursor = new Date(startObj.getTime());
+      const scheduleMap = {};
+      const orderedModules = [];
+      let totalExtensionDays = 0;
+      let totalCourseDays = 0;
+      let gradDate = startObj;
+
+      for (const phase of phases) {
+        for (const week of phase.weeks) {
+          // Skip bonus from graduation calculation if toggle is OFF, still compute preview if needed
+          const included = !week.isBonus || state.includeBonus;
+          const scaledBase = Math.max(2, Math.round(week.baseDays * factor));
+          const ext = parseInt(state.extensions[week.id] || 0, 10) || 0;
+          const totalDays = Math.max(1, scaledBase + ext);
+
+          const wStart = new Date(cursor.getTime());
+          const wEnd = addDays(wStart, totalDays - 1);
+
+          if (included) {
+            cursor = addDays(wEnd, 1);
+            totalExtensionDays += ext;
+            totalCourseDays += totalDays;
+            gradDate = wEnd;
+          }
+
+          // Compute completion stats for this week
+          const weekItems = week.sections.flatMap((s) => s.items);
+          const doneCount = weekItems.filter((it) => state.checked[it.id]).length;
+          const totalCount = weekItems.length;
+          const isComplete = totalCount > 0 && doneCount === totalCount;
+
+          // Determine live status badge
+          let status = "upcoming"; // completed | overdue | current | upcoming
+          if (isComplete) {
+            status = "completed";
+          } else if (included) {
+            if (todayObj > wEnd) status = "overdue";
+            else if (todayObj >= wStart && todayObj <= wEnd) status = "current";
+            else status = "upcoming";
+          }
+
+          // Distribute internal sections as concrete dated study sessions across [wStart .. wEnd]
+          const secCount = week.sections.length;
+          const sessions = week.sections.map((sec, idx) => {
+            const offset = secCount <= 1
+              ? 0
+              : Math.round((idx * (totalDays - 1)) / (secCount - 1));
+            const sDate = addDays(wStart, offset);
+            const sDone = sec.items.filter((it) => state.checked[it.id]).length;
+            return {
+              index: idx + 1,
+              title: sec.title,
+              date: sDate,
+              dateLabel: formatArabicDate(sDate, "weekday"),
+              done: sDone,
+              total: sec.items.length,
+              complete: sec.items.length > 0 && sDone === sec.items.length
+            };
+          });
+
+          const entry = {
+            weekId: week.id,
+            phaseId: phase.id,
+            phaseShort: phase.short,
+            phaseBarClass: phase.barClass,
+            phaseBadgeClass: phase.badgeClass,
+            title: week.title,
+            isBonus: week.isBonus,
+            included,
+            baseDays: week.baseDays,
+            scaledBase,
+            ext,
+            totalDays,
+            startDate: wStart,
+            endDate: wEnd,
+            startLabel: formatArabicDate(wStart, "short"),
+            endLabel: formatArabicDate(wEnd, "short"),
+            startFull: formatArabicDate(wStart, "long"),
+            endFull: formatArabicDate(wEnd, "long"),
+            doneCount,
+            totalCount,
+            pct: totalCount ? Math.round((doneCount / totalCount) * 100) : 0,
+            status,
+            sessions
+          };
+
+          scheduleMap[week.id] = entry;
+          orderedModules.push(entry);
+        }
+      }
+
+      const daysRemaining = Math.max(0, diffDays(gradDate, todayObj));
+      return {
+        startDate: startObj,
+        gradDate,
+        totalCourseDays,
+        totalExtensionDays,
+        daysRemaining,
+        scheduleMap,
+        orderedModules
+      };
+    }
+
+    // =========================================================================
+    // 4. ACTIVITY & STREAK TRACKING
+    // =========================================================================
+    function ensureTodayStreakSlot() {
+      const today = getTodayISO();
+      if (state.streak.todayDate !== today) {
+        state.streak.todayDate = today;
+        state.streak.todayItems = 0;
+        state.streak.todayMins = 0;
+      }
+    }
+
+    function touchDailyStreak() {
+      const today = getTodayISO();
+      const yesterday = getYesterdayISO();
+      if (state.streak.lastActiveDate !== today) {
+        if (state.streak.lastActiveDate === yesterday) {
+          state.streak.current = (state.streak.current || 0) + 1;
+        } else {
+          state.streak.current = 1;
+        }
+        state.streak.lastActiveDate = today;
+        if (state.streak.current > (state.streak.best || 0)) {
+          state.streak.best = state.streak.current;
+        }
+      }
+    }
+
+    function recordItemActivity(delta) {
+      ensureTodayStreakSlot();
+      state.streak.todayItems = Math.max(0, (state.streak.todayItems || 0) + delta);
+      if (delta > 0) touchDailyStreak();
+    }
+
+    function recordFocusSession(minutes, label) {
+      ensureTodayStreakSlot();
+      const mins = Math.max(1, Math.round(minutes));
+      state.streak.todayMins = (state.streak.todayMins || 0) + mins;
+      state.timerSessions = (state.timerSessions || 0) + 1;
+      state.totalFocusedMinutes = (state.totalFocusedMinutes || 0) + mins;
+      touchDailyStreak();
+
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      state.timerHistory.unshift({
+        dateISO: getTodayISO(),
+        timeStr,
+        minutes: mins,
+        label
+      });
+      state.timerHistory = state.timerHistory.slice(0, 20);
+      persistState(true);
+    }
+
+    function getActiveStreak() {
+      const today = getTodayISO();
+      const yesterday = getYesterdayISO();
+      if (state.streak.lastActiveDate === today || state.streak.lastActiveDate === yesterday) {
+        return state.streak.current || 0;
+      }
+      return 0;
+    }
+
+    // Toast notification helper
+    let toastTimeout = null;
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      document.getElementById("toastMsg").textContent = msg;
+      el.classList.remove("opacity-0", "translate-y-3");
+      el.classList.add("opacity-100", "translate-y-0");
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        el.classList.add("opacity-0", "translate-y-3");
+        el.classList.remove("opacity-100", "translate-y-0");
+      }, 2400);
+    }
+
+    // =========================================================================
+    // 5. RENDERING ALL 5 TABS
+    // =========================================================================
+    function renderAll() {
+      const phases = getMergedPhases();
+      const allItems = flattenItems(phases);
+      const schedule = computeTimelineSchedule(phases);
+
+      renderHome(phases, allItems, schedule);
+      renderFilterPills(allItems);
+      renderCurriculum(phases, schedule);
+      renderTimeline(phases, schedule);
+      renderTimerMeta(allItems);
+      renderStats(phases, allItems);
+    }
+
+    function renderHome(phases, allItems, schedule) {
+      // Count core + bonus items
+      const countedItems = state.includeBonus ? allItems : allItems.filter((i) => !i.isBonus);
+      const total = countedItems.length;
+      const done = countedItems.filter((i) => state.checked[i.id]).length;
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+      const modulesCounted = schedule.orderedModules.filter((m) => m.included);
+      const completedModules = modulesCounted.filter((m) => m.status === "completed").length;
+
+      // Global Header
+      document.getElementById("headerPctBadge").textContent = `${pct}%`;
+      document.getElementById("topProgressLine").style.width = `${pct}%`;
+
+      // Hero Ring (r=42 => C = 263.89)
+      const circ = 263.89;
+      document.getElementById("heroCircle").style.strokeDashoffset = circ - (pct / 100) * circ;
+      document.getElementById("heroPctText").textContent = `${pct}%`;
+
+      const totalStr = `${done} / ${total} عنصر`;
+      const modStr = `${completedModules} / ${modulesCounted.length} وحدة مكتملة`;
+      document.getElementById("heroTotalDesktop").textContent = totalStr;
+      document.getElementById("heroTotalMobile").textContent = totalStr;
+      document.getElementById("heroWeeksDesktop").textContent = modStr;
+      document.getElementById("heroWeeksMobile").textContent = modStr;
+
+      // 4 Stat Cards
+      document.getElementById("statTotalRatio").textContent = `${done}/${total}`;
+      document.getElementById("barTotal").style.width = `${pct}%`;
+
+      const videos = countedItems.filter((i) => i.type === "video");
+      const vDone = videos.filter((i) => state.checked[i.id]).length;
+      document.getElementById("statVideosRatio").textContent = `${vDone}/${videos.length}`;
+      document.getElementById("barVideos").style.width = `${videos.length ? Math.round((vDone / videos.length) * 100) : 0}%`;
+
+      const practice = countedItems.filter((i) => i.type === "workshop" || i.type === "assignment");
+      const pDone = practice.filter((i) => state.checked[i.id]).length;
+      document.getElementById("statPracticeRatio").textContent = `${pDone}/${practice.length}`;
+      document.getElementById("barPractice").style.width = `${practice.length ? Math.round((pDone / practice.length) * 100) : 0}%`;
+
+      const reviewCount = allItems.filter((i) => state.reviewFlags[i.id]).length;
+      document.getElementById("statReviewCount").textContent = reviewCount;
+
+      // Timeline Summary Banner
+      document.getElementById("homePaceBadge").textContent = (PACE_CONFIG[state.paceMode] || PACE_CONFIG.standard).label;
+      document.getElementById("homeStartDate").textContent = formatArabicDate(schedule.startDate, "long");
+      document.getElementById("homeGradDate").textContent = formatArabicDate(schedule.gradDate, "long");
+      const extSign = schedule.totalExtensionDays > 0 ? "+" : "";
+      document.getElementById("homeTotalExt").textContent = `${extSign}${schedule.totalExtensionDays} يوم`;
+      document.getElementById("homeDaysRemaining").textContent = `${schedule.daysRemaining} يوم`;
+
+      // Next Up Card
+      const nextItem = countedItems.find((i) => !state.checked[i.id]) || allItems.find((i) => !state.checked[i.id]);
+      const nextDoneBtn = document.getElementById("nextUpDoneBtn");
+      const nextJumpBtn = document.getElementById("nextUpJumpBtn");
+
+      if (nextItem) {
+        const wSched = schedule.scheduleMap[nextItem.weekId];
+        document.getElementById("nextUpWeekBadge").textContent = `${nextItem.phaseShort} • ${nextItem.weekTitle}`;
+        document.getElementById("nextUpDateBadge").textContent = wSched ? `${wSched.startLabel} ← ${wSched.endLabel}` : "";
+        document.getElementById("nextUpTitle").textContent = nextItem.title;
+        document.getElementById("nextUpSection").textContent = `القسم: ${nextItem.sectionTitle} • النوع: ${TYPE_BADGES[nextItem.type]?.label || "فيديو"}`;
+        nextDoneBtn.dataset.itemId = nextItem.id;
+        nextJumpBtn.dataset.phaseId = nextItem.phaseId;
+        nextJumpBtn.dataset.weekId = nextItem.weekId;
+        nextDoneBtn.classList.remove("hidden");
+        nextJumpBtn.classList.remove("hidden");
+      } else {
+        document.getElementById("nextUpWeekBadge").textContent = "مبروك التخرج! 🎓";
+        document.getElementById("nextUpDateBadge").textContent = "100%";
+        document.getElementById("nextUpTitle").textContent = "أنهيت جميع عناصر المسار بالكامل!";
+        document.getElementById("nextUpSection").textContent = "أنت جاهز الآن لبناء مشاريعك القوية والتقديم في سوق العمل.";
+        nextDoneBtn.classList.add("hidden");
+        nextJumpBtn.classList.add("hidden");
+      }
+
+      // Streak & Today Stats
+      const isToday = state.streak.todayDate === getTodayISO();
+      document.getElementById("homeStreakVal").textContent = `${getActiveStreak()} يوم 🔥`;
+      document.getElementById("homeTodayItems").textContent = isToday ? (state.streak.todayItems || 0) : 0;
+      document.getElementById("homeTodayMins").textContent = `${isToday ? (state.streak.todayMins || 0) : 0}د`;
+      document.getElementById("homeBestStreak").textContent = `${state.streak.best || 0} يوم 🏆`;
+      document.getElementById("homeAllMins").textContent = `${state.totalFocusedMinutes || 0} د`;
+    }
+
+    function renderFilterPills(allItems) {
+      const reviewCount = allItems.filter((i) => state.reviewFlags[i.id]).length;
+      document.getElementById("filterPillsBar").innerHTML = FILTER_PILLS.map((p) => {
+        const active = ui.activeFilter === p.id;
+        const extraBadge = p.id === "review" && reviewCount > 0 ? ` (${reviewCount})` : "";
+        return `
+          <button type="button" data-filter="${p.id}" class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all active:scale-95 ${
+            active
+              ? (p.id === "review"
+                  ? "bg-amber-500/20 text-amber-300 border-amber-400/40"
+                  : "bg-cyan-500/20 text-cyan-200 border-cyan-400/40")
+              : "bg-[#0b0f19] text-slate-400 border-[#1f2937] hover:text-slate-100"
+          }">
+            ${escapeHtml(p.label + extraBadge)}
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderCurriculum(phases, schedule) {
+      const container = document.getElementById("phasesContainer");
+      const emptyEl = document.getElementById("emptyCurriculumState");
+      const q = ui.searchQuery.trim().toLowerCase();
+      const f = ui.activeFilter;
+
+      const phaseBlocks = [];
+
+      for (const phase of phases) {
+        const allPhaseItems = phase.weeks.flatMap((w) => w.sections.flatMap((s) => s.items));
+        const pTotal = allPhaseItems.length;
+        const pDone = allPhaseItems.filter((it) => state.checked[it.id]).length;
+        const pPct = pTotal ? Math.round((pDone / pTotal) * 100) : 0;
+        const isPhaseComplete = pTotal > 0 && pDone === pTotal;
+
+        const phaseMatch = q && phase.title.toLowerCase().includes(q);
+        const weeksHtml = [];
+
+        for (const week of phase.weeks) {
+          const wSched = schedule.scheduleMap[week.id];
+          const wItems = week.sections.flatMap((s) => s.items);
+          const wDone = wItems.filter((it) => state.checked[it.id]).length;
+          const wTotal = wItems.length;
+          const wPct = wTotal ? Math.round((wDone / wTotal) * 100) : 0;
+          const isWeekComplete = wTotal > 0 && wDone === wTotal;
+
+          const weekMatch = q && week.title.toLowerCase().includes(q);
+          const visibleSections = [];
+
+          for (const sec of week.sections) {
+            const secMatch = q && sec.title.toLowerCase().includes(q);
+            const filtered = sec.items.filter((it) => {
+              const checked = !!state.checked[it.id];
+              const flagged = !!state.reviewFlags[it.id];
+              if (f === "completed" && !checked) return false;
+              if (f === "remaining" && checked) return false;
+              if (f === "review" && !flagged) return false;
+              if (["video", "workshop", "assignment", "extra"].includes(f) && it.type !== f) return false;
+              if (!q) return true;
+              return phaseMatch || weekMatch || secMatch || it.title.toLowerCase().includes(q);
+            });
+            if (filtered.length > 0) visibleSections.push({ title: sec.title, items: filtered });
+          }
+
+          if (visibleSections.length === 0) continue;
+
+          const isWeekOpen = q.length > 0 || f === "review" || ui.expandedWeeks.has(week.id);
+          const isNotesOpen = ui.openNotesWeeks.has(week.id);
+          const weekNote = state.notes[week.id] || "";
+          const weekLinks = state.links[week.id] || { drive: "", github: "" };
+          const driveHref = normalizeUrl(weekLinks.drive);
+          const githubHref = normalizeUrl(weekLinks.github);
+
+          const sectionsHtml = visibleSections.map((sec) => `
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-2 pt-2 pb-1">
+                <span class="w-1.5 h-1.5 rounded-full ${phase.barClass}"></span>
+                <h5 class="text-xs font-bold text-slate-300" dir="auto">${escapeHtml(sec.title)}</h5>
+                <div class="flex-1 h-px bg-[#1f2937]"></div>
+              </div>
+              <div class="space-y-1.5">
+                ${sec.items.map((item) => {
+                  const checked = !!state.checked[item.id];
+                  const flagged = !!state.reviewFlags[item.id];
+                  const badge = TYPE_BADGES[item.type] || TYPE_BADGES.video;
+                  return `
+                    <div class="group flex items-center gap-2.5 p-2.5 sm:p-3 rounded-2xl border transition-all duration-200 min-h-[48px] ${
+                      checked
+                        ? "bg-emerald-500/[0.07] border-emerald-500/25"
+                        : (flagged ? "bg-amber-500/[0.06] border-amber-500/30" : "bg-[#0b0f19] border-[#1f2937] hover:border-slate-700")
+                    }">
+                      <!-- Clickable Check Area -->
+                      <button type="button" data-toggle-item="${item.id}" class="flex-1 min-w-0 flex items-center gap-3 text-right">
+                        <div class="w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-all ${
+                          checked
+                            ? "bg-emerald-500 border-emerald-400 shadow-sm shadow-emerald-500/40"
+                            : "border-slate-600 bg-[#111827] group-hover:border-cyan-400"
+                        }">
+                          <svg class="w-3.5 h-3.5 text-[#0b0f19] transition-transform ${checked ? "scale-100" : "scale-0"}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <span class="flex-1 min-w-0 text-xs sm:text-[13px] font-medium font-mono break-words text-left ${
+                          checked ? "line-through text-slate-500" : "text-slate-100"
+                        }" dir="ltr">${escapeHtml(item.title)}</span>
+                      </button>
+
+                      <!-- Right Controls: Type Badge + Review Flag ⭐ + Delete Custom -->
+                      <div class="flex items-center gap-1.5 shrink-0">
+                        <span class="hidden sm:inline-block px-2 py-0.5 rounded-lg text-[10px] font-extrabold border ${badge.cls}">
+                          ${badge.label}
+                        </span>
+
+                        <button type="button" data-toggle-review="${item.id}" title="محتاج مراجعة" aria-label="تمييز للمراجعة" class="p-1.5 rounded-xl border transition-all active:scale-90 ${
+                          flagged
+                            ? "bg-amber-500/20 text-amber-300 border-amber-400/40"
+                            : "bg-[#111827] text-slate-500 border-[#1f2937] hover:text-amber-300 hover:border-amber-500/30"
+                        }">
+                          <svg class="w-4 h-4" fill="${flagged ? "currentColor" : "none"}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                          </svg>
+                        </button>
+
+                        ${item.custom ? `
+                          <button type="button" data-delete-custom="${week.id}|${item.id}" aria-label="حذف العنصر" class="p-1.5 rounded-xl bg-[#111827] text-slate-500 hover:text-rose-400 border border-[#1f2937] transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        ` : ""}
+                      </div>
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            </div>
+          `).join("");
+
+          const extPill = wSched && wSched.ext !== 0
+            ? `<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">${wSched.ext > 0 ? `+${wSched.ext}` : wSched.ext} يوم</span>`
+            : "";
+
+          weeksHtml.push(`
+            <div id="curr-week-${week.id}" class="rounded-2xl bg-[#0b0f19]/80 border transition-colors ${
+              isWeekComplete ? "border-emerald-500/35" : "border-[#1f2937]"
+            } overflow-hidden">
+              <!-- Week Collapsible Header -->
+              <div data-toggle-week="${week.id}" class="p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-3 cursor-pointer hover:bg-[#111827]/70 transition-colors select-none">
+                <div class="flex-1 min-w-0 space-y-1.5">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h4 class="text-xs sm:text-sm font-extrabold text-white" dir="auto">${escapeHtml(week.title)}</h4>
+                    <span class="px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold border ${
+                      isWeekComplete ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" : "bg-[#111827] text-slate-300 border-[#1f2937]"
+                    }" dir="ltr">${wDone}/${wTotal} • ${wPct}%</span>
+                    ${wSched && wSched.included ? `<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">📅 ${wSched.startLabel} ← ${wSched.endLabel}</span>` : ""}
+                    ${extPill}
+                  </div>
+                  <div class="w-full max-w-xs h-1.5 rounded-full bg-[#1f2937] overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500 ${isWeekComplete ? "bg-emerald-400" : phase.barClass}" style="width: ${wPct}%"></div>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+                  <button type="button" data-quick-ext5="${week.id}" class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/25 transition-colors">
+                    +5 أيام تمديد
+                  </button>
+                  <button type="button" data-check-week="${week.id}" class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold border transition-colors ${
+                    isWeekComplete
+                      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                      : "bg-[#111827] text-slate-300 border-[#1f2937] hover:text-white"
+                  }">
+                    ${isWeekComplete ? "إلغاء الكل" : "تحديد الكل"}
+                  </button>
+                  <div class="p-1.5 rounded-xl bg-[#111827] border border-[#1f2937] text-slate-400 transition-transform ${isWeekOpen ? "rotate-180" : ""}">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Week Body -->
+              <div class="${isWeekOpen ? "block" : "hidden"} border-t border-[#1f2937] px-3.5 sm:px-4 pb-4 pt-3 space-y-4">
+
+                <!-- Quick Links Bar (Google Drive + GitHub Repo) -->
+                <div class="rounded-2xl bg-[#111827] border border-[#1f2937] p-3 space-y-2.5">
+                  <div class="text-[11px] font-extrabold text-slate-300">🔗 روابط الأسبوع (تُحفظ تلقائياً)</div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    <!-- Drive Link -->
+                    <div class="flex items-center gap-1.5">
+                      <input type="url" data-link-input="${week.id}|drive" value="${escapeHtml(weekLinks.drive || "")}" placeholder="رابط فولدر Google Drive للأسبوع..." class="flex-1 min-w-0 rounded-xl bg-[#0b0f19] border border-[#1f2937] focus:border-cyan-500 px-3 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none font-mono" dir="ltr" />
+                      <a id="open-drive-${week.id}" href="${escapeHtml(driveHref || "#")}" target="_blank" rel="noopener noreferrer" class="shrink-0 px-3 py-2 rounded-xl text-[11px] font-extrabold border transition-colors ${
+                        driveHref ? "bg-cyan-500/15 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/25" : "bg-slate-900 text-slate-600 border-[#1f2937] pointer-events-none"
+                      }">فتح Drive ↗</a>
+                    </div>
+
+                    <!-- GitHub Link -->
+                    <div class="flex items-center gap-1.5">
+                      <input type="url" data-link-input="${week.id}|github" value="${escapeHtml(weekLinks.github || "")}" placeholder="رابط GitHub Repo للـ Assignment/المشروع..." class="flex-1 min-w-0 rounded-xl bg-[#0b0f19] border border-[#1f2937] focus:border-violet-500 px-3 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none font-mono" dir="ltr" />
+                      <a id="open-github-${week.id}" href="${escapeHtml(githubHref || "#")}" target="_blank" rel="noopener noreferrer" class="shrink-0 px-3 py-2 rounded-xl text-[11px] font-extrabold border transition-colors ${
+                        githubHref ? "bg-violet-500/15 text-violet-300 border-violet-500/30 hover:bg-violet-500/25" : "bg-slate-900 text-slate-600 border-[#1f2937] pointer-events-none"
+                      }">فتح GitHub ↗</a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Checklist Sections -->
+                ${sectionsHtml}
+
+                <!-- Weekly Notes & Add Custom Item -->
+                <div class="pt-3 border-t border-[#1f2937] space-y-3">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <button type="button" data-toggle-note="${week.id}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#111827] hover:bg-slate-800 text-xs font-bold text-slate-300 border border-[#1f2937] transition-colors">
+                      <span>📝 ملاحظات الأسبوع</span>
+                      ${weekNote.trim() ? '<span class="w-2 h-2 rounded-full bg-amber-400"></span>' : ""}
+                    </button>
+                    <button type="button" data-add-custom="${week.id}" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-xs font-extrabold text-cyan-300 border border-cyan-500/30 transition-colors">
+                      <span>+ إضافة عنصر مخصص</span>
+                    </button>
+                  </div>
+
+                  <div class="${isNotesOpen ? "block" : "hidden"} space-y-1">
+                    <textarea data-note-input="${week.id}" rows="3" placeholder="اكتب ملاحظاتك، أوامر مهمة، أو نقاط مراجعة لهذا الأسبوع..." class="w-full rounded-2xl bg-[#111827] border border-[#1f2937] focus:border-cyan-500 p-3 text-xs sm:text-sm text-slate-200 placeholder-slate-500 outline-none resize-y">${escapeHtml(weekNote)}</textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `);
+        }
+
+        if (weeksHtml.length === 0) continue;
+
+        const isPhaseOpen = q.length > 0 || f === "review" || ui.expandedPhases.has(phase.id);
+
+        phaseBlocks.push(`
+          <section class="rounded-3xl bg-[#111827] border ${isPhaseComplete ? "border-emerald-500/35" : "border-[#1f2937]"} overflow-hidden shadow-lg shadow-black/25">
+            <div data-toggle-phase="${phase.id}" class="p-4 sm:p-5 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-800/35 transition-colors select-none">
+              <div class="flex-1 min-w-0 space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-xl text-[11px] font-extrabold border ${phase.badgeClass}">${escapeHtml(phase.short)}</span>
+                  <h3 class="text-sm sm:text-base font-extrabold text-white" dir="auto">${escapeHtml(phase.title)}</h3>
+                  ${isPhaseComplete ? '<span class="text-xs font-bold text-emerald-400">✓ مكتملة</span>' : ""}
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="flex-1 max-w-md h-2 rounded-full bg-[#0b0f19] border border-[#1f2937] overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500 ${isPhaseComplete ? "bg-emerald-400" : phase.barClass}" style="width: ${pPct}%"></div>
+                  </div>
+                  <span class="text-xs font-mono font-bold text-slate-300 shrink-0" dir="ltr">${pDone}/${pTotal} (${pPct}%)</span>
+                </div>
+              </div>
+              <div class="p-2 rounded-2xl bg-[#0b0f19] border border-[#1f2937] text-slate-400 transition-transform ${isPhaseOpen ? "rotate-180" : ""}">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <div class="${isPhaseOpen ? "block" : "hidden"} border-t border-[#1f2937] p-3 sm:p-4 space-y-3">
+              ${weeksHtml.join("")}
+            </div>
+          </section>
+        `);
+      }
+
+      if (phaseBlocks.length === 0) {
+        container.innerHTML = "";
+        emptyEl.classList.remove("hidden");
+      } else {
+        emptyEl.classList.add("hidden");
+        container.innerHTML = phaseBlocks.join("");
+      }
+    }
+
+    function renderTimeline(phases, schedule) {
+      // Sync top controls
+      const startInput = document.getElementById("timelineStartDateInput");
+      if (startInput.value !== state.startDate) startInput.value = state.startDate;
+      document.getElementById("includeBonusToggle").checked = !!state.includeBonus;
+
+      document.querySelectorAll(".pace-btn").forEach((btn) => {
+        const active = btn.dataset.pace === state.paceMode;
+        btn.className = "pace-btn px-3 py-2.5 rounded-xl text-xs font-bold border transition-all text-center " + (
+          active
+            ? "bg-violet-500/20 text-violet-200 border-violet-400/50 shadow-sm shadow-violet-500/15"
+            : "bg-[#111827] text-slate-400 border-[#1f2937] hover:text-white"
+        );
+      });
+
+      document.getElementById("timelineGradDate").textContent = formatArabicDate(schedule.gradDate, "long");
+      document.getElementById("timelineTotalDays").textContent = `${schedule.totalCourseDays} يوم`;
+      const extSign = schedule.totalExtensionDays > 0 ? "+" : "";
+      document.getElementById("timelineTotalExt").textContent = `${extSign}${schedule.totalExtensionDays} يوم`;
+
+      // Phase filter bar
+      const phaseTabs = [{ id: "all", label: "كل المراحل" }, ...phases.map((p) => ({ id: p.id, label: p.short }))];
+      document.getElementById("timelinePhaseFilterBar").innerHTML = phaseTabs.map((pt) => {
+        const active = ui.timelinePhaseFilter === pt.id;
+        return `
+          <button type="button" data-tl-phase="${pt.id}" class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors ${
+            active
+              ? "bg-cyan-500/20 text-cyan-200 border-cyan-400/40"
+              : "bg-[#111827] text-slate-400 border-[#1f2937] hover:text-white"
+          }">${escapeHtml(pt.label)}</button>
+        `;
+      }).join("");
+
+      const statusBadgeMap = {
+        completed: { text: "مكتمل ✓", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+        current: { text: "الأسبوع الحالي", cls: "bg-cyan-500/15 text-cyan-300 border-cyan-500/35" },
+        overdue: { text: "متأخر ⚠️", cls: "bg-rose-500/15 text-rose-300 border-rose-500/35" },
+        upcoming: { text: "قادم", cls: "bg-slate-800 text-slate-300 border-slate-700" }
+      };
+
+      const filtered = schedule.orderedModules.filter((m) => {
+        if (ui.timelinePhaseFilter !== "all" && m.phaseId !== ui.timelinePhaseFilter) return false;
+        return true;
+      });
+
+      document.getElementById("timelineModulesContainer").innerHTML = filtered.map((m) => {
+        const sb = statusBadgeMap[m.status] || statusBadgeMap.upcoming;
+        const sessionsOpen = ui.expandedTimelineSessions.has(m.weekId);
+        const dimBonus = m.isBonus && !m.included;
+
+        return `
+          <div class="rounded-3xl bg-[#111827] border ${
+            m.status === "current"
+              ? "border-cyan-500/45 shadow-lg shadow-cyan-950/30"
+              : (m.status === "overdue" ? "border-rose-500/35" : (m.status === "completed" ? "border-emerald-500/35" : "border-[#1f2937]"))
+          } p-4 sm:p-5 space-y-4 ${dimBonus ? "opacity-55" : ""}">
+
+            <!-- Header Row -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div class="space-y-1.5 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold border ${m.phaseBadgeClass}">${escapeHtml(m.phaseShort)}</span>
+                  <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold border ${sb.cls}">${sb.text}</span>
+                  ${m.ext !== 0 ? `<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold bg-amber-500/15 text-amber-300 border border-amber-500/30">${m.ext > 0 ? `+${m.ext} أيام تمديد` : `${m.ext} أيام تقليص`}</span>` : ""}
+                  ${dimBonus ? `<span class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-400">غير مضمّن في تاريخ التخرج</span>` : ""}
+                </div>
+                <h3 class="text-sm sm:text-base font-extrabold text-white" dir="auto">${escapeHtml(m.title)}</h3>
+                <div class="flex flex-wrap items-center gap-2 text-xs text-slate-300">
+                  <span class="font-bold text-cyan-300">📆 ${m.startFull} ← ${m.endFull}</span>
+                  <span class="text-slate-500">•</span>
+                  <span class="font-mono text-slate-400">المدة: <strong class="text-white">${m.totalDays}</strong> يوم (الأساسي ${m.scaledBase})</span>
+                  <span class="text-slate-500">•</span>
+                  <span class="font-mono text-emerald-300">${m.doneCount}/${m.totalCount} (${m.pct}%)</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                <button type="button" data-tl-jump="${m.phaseId}|${m.weekId}" class="px-3 py-2 rounded-xl bg-[#0b0f19] hover:bg-slate-800 border border-[#1f2937] text-xs font-bold text-cyan-300 transition-colors">
+                  فتح في المنهج ↗
+                </button>
+                <button type="button" data-tl-sessions="${m.weekId}" class="px-3 py-2 rounded-xl bg-[#0b0f19] hover:bg-slate-800 border border-[#1f2937] text-xs font-bold text-slate-200 transition-colors">
+                  ${sessionsOpen ? "إخفاء الجلسات ▲" : `مخطط الجلسات (${m.sessions.length}) ▼`}
+                </button>
+              </div>
+            </div>
+
+            <!-- Per-Week Auto-Ripple Extension Controls -->
+            <div class="rounded-2xl bg-[#0b0f19] border border-[#1f2937] p-3 flex flex-wrap items-center justify-between gap-2.5">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[11px] font-bold text-slate-400 ml-1">تمديد الأسبوع:</span>
+                <button type="button" data-ext-delta="${m.weekId}|1" class="px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold transition-all active:scale-95">+1 يوم</button>
+                <button type="button" data-ext-delta="${m.weekId}|3" class="px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold transition-all active:scale-95">+3 أيام</button>
+                <button type="button" data-ext-delta="${m.weekId}|5" class="px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 text-xs font-mono font-extrabold transition-all active:scale-95">+5 أيام</button>
+                <button type="button" data-ext-delta="${m.weekId}|-1" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-mono font-bold transition-all active:scale-95">-1 يوم</button>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <label class="text-[11px] text-slate-400 font-bold">مخصص:</label>
+                <input type="number" data-ext-custom="${m.weekId}" value="${m.ext}" min="-6" max="60" class="w-16 rounded-xl bg-[#111827] border border-[#1f2937] focus:border-cyan-500 px-2 py-1.5 text-center text-xs font-mono font-bold text-white outline-none" dir="ltr" />
+                ${m.ext !== 0 ? `<button type="button" data-ext-reset="${m.weekId}" class="px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/25 text-[11px] font-bold">إعادة ضبط (0)</button>` : ""}
+              </div>
+            </div>
+
+            <!-- Per-Week Session Breakdown -->
+            <div class="${sessionsOpen ? "block" : "hidden"} space-y-2 pt-1">
+              <div class="text-xs font-bold text-slate-400">توزيع الجلسات داخل الأسبوع (${m.startLabel} ← ${m.endLabel}):</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                ${m.sessions.map((s) => `
+                  <div class="rounded-2xl bg-[#0b0f19] border ${s.complete ? "border-emerald-500/35" : "border-[#1f2937]"} p-3 space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">جلسة ${s.index}</span>
+                      <span class="text-[11px] font-bold text-slate-300">${escapeHtml(s.dateLabel)}</span>
+                    </div>
+                    <div class="text-xs font-bold text-white truncate" dir="auto">${escapeHtml(s.title)}</div>
+                    <div class="flex items-center justify-between text-[11px]">
+                      <span class="font-mono ${s.complete ? "text-emerald-400 font-bold" : "text-slate-400"}" dir="ltr">${s.done}/${s.total}</span>
+                      <span class="${s.complete ? "text-emerald-400 font-bold" : "text-slate-500"}">${s.complete ? "مكتمل ✓" : "متبقي"}</span>
+                    </div>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderTimerMeta(allItems) {
+      const nextItem = allItems.find((i) => !state.checked[i.id]);
+      const targetEl = document.getElementById("timerTargetTitle");
+      const doneBtn = document.getElementById("timerMarkDoneBtn");
+
+      if (nextItem) {
+        targetEl.textContent = nextItem.title;
+        doneBtn.dataset.itemId = nextItem.id;
+        doneBtn.classList.remove("hidden");
+      } else {
+        targetEl.textContent = "أنهيت كل عناصر المسار 🎉";
+        doneBtn.classList.add("hidden");
+      }
+
+      const todayMins = state.streak.todayDate === getTodayISO() ? (state.streak.todayMins || 0) : 0;
+      document.getElementById("timerStatsSub").textContent = `مسجل اليوم: ${todayMins} دقيقة`;
+      document.getElementById("timerTotalLoggedBadge").textContent = `${state.totalFocusedMinutes || 0} دقيقة إجمالي`;
+
+      const histEl = document.getElementById("timerHistoryList");
+      if (!state.timerHistory || state.timerHistory.length === 0) {
+        histEl.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">لم تسجل أي جلسة تايمر بعد — ابدأ أول جلسة الآن!</div>`;
+      } else {
+        histEl.innerHTML = state.timerHistory.slice(0, 8).map((h) => `
+          <div class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-2xl bg-[#0b0f19] border border-[#1f2937] text-xs">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 font-mono font-bold shrink-0">+${h.minutes}د</span>
+              <span class="text-slate-200 font-bold truncate">${escapeHtml(h.label || "جلسة تركيز")}</span>
+            </div>
+            <span class="text-[11px] font-mono text-slate-500 shrink-0" dir="ltr">${escapeHtml(h.dateISO)} • ${escapeHtml(h.timeStr || "")}</span>
+          </div>
+        `).join("");
+      }
+    }
+
+    function renderStats(phases, allItems) {
+      const counted = state.includeBonus ? allItems : allItems.filter((i) => !i.isBonus);
+      const total = counted.length;
+      const done = counted.filter((i) => state.checked[i.id]).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+
+      const flaggedItems = allItems.filter((i) => state.reviewFlags[i.id]);
+
+      document.getElementById("statsBigPct").textContent = `${pct}%`;
+      document.getElementById("statsTotalMins").textContent = `${state.totalFocusedMinutes || 0} د`;
+      document.getElementById("statsSessions").textContent = state.timerSessions || 0;
+      document.getElementById("statsReviewTotal").textContent = flaggedItems.length;
+      document.getElementById("statsOverallRatio").textContent = `${done} / ${total}`;
+      document.getElementById("reviewQueueCountBadge").textContent = `${flaggedItems.length} عنصر`;
+
+      // Horizontal Phase Chart
+      document.getElementById("phaseChartList").innerHTML = phases.map((p) => {
+        const pItems = p.weeks.flatMap((w) => w.sections.flatMap((s) => s.items));
+        const pDone = pItems.filter((it) => state.checked[it.id]).length;
+        const pPct = pItems.length ? Math.round((pDone / pItems.length) * 100) : 0;
+        return `
+          <div class="space-y-1.5">
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <span class="font-bold text-slate-200">${escapeHtml(p.title)}</span>
+              <span class="font-mono text-slate-400" dir="ltr">${pDone}/${pItems.length} • <strong class="text-white">${pPct}%</strong></span>
+            </div>
+            <div class="w-full h-3 rounded-full bg-[#0b0f19] border border-[#1f2937] overflow-hidden p-[1px]">
+              <div class="h-full rounded-full ${pPct === 100 ? "bg-emerald-400" : p.barClass} transition-all duration-500" style="width: ${pPct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Review Queue List
+      const rqEl = document.getElementById("reviewQueueList");
+      if (flaggedItems.length === 0) {
+        rqEl.innerHTML = `<div class="rounded-2xl bg-[#0b0f19] border border-[#1f2937] p-5 text-center text-xs text-slate-400">لا توجد عناصر في قائمة المراجعة حالياً. اضغط على أيقونة النجمة ⭐ بجانب أي درس صعب لإضافته هنا.</div>`;
+      } else {
+        rqEl.innerHTML = flaggedItems.map((it) => `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-2xl bg-[#0b0f19] border border-amber-500/25">
+            <div class="min-w-0 space-y-0.5">
+              <div class="text-[11px] font-bold text-amber-300">${escapeHtml(it.phaseShort)} • ${escapeHtml(it.weekTitle)}</div>
+              <div class="text-xs sm:text-sm font-mono font-bold text-white break-words" dir="ltr">${escapeHtml(it.title)}</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" data-rq-jump="${it.phaseId}|${it.weekId}" class="px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-bold">انتقال</button>
+              <button type="button" data-rq-unflag="${it.id}" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">إزالة ⭐</button>
+            </div>
+          </div>
+        `).join("");
+      }
+    }
+
+    // =========================================================================
+    // 6. SMART 1.5x VIDEO STUDY TIMER ENGINE
+    // =========================================================================
+    const timer = {
+      videoMinutes: 36,
+      multiplier: 1.5,
+      totalSeconds: 54 * 60,
+      remainingSeconds: 54 * 60,
+      modeLabel: "تايمر الفيديو × 1.5 (36د فيديو + 18د كود)",
+      running: false,
+      muted: false,
+      interval: null,
+      accent: "#10b981"
+    };
+
+    function updateVideoCalcUI() {
+      const vMins = Math.max(1, Math.min(300, parseInt(document.getElementById("videoMinutesInput").value, 10) || 36));
+      timer.videoMinutes = vMins;
+      const totalMins = Math.max(1, Math.round(vMins * timer.multiplier));
+      const practiceMins = Math.max(0, totalMins - vMins);
+
+      document.getElementById("calcTotalLabel").textContent = `${totalMins} دقيقة`;
+      document.getElementById("calcBreakdownLabel").textContent = practiceMins > 0
+        ? `${vMins} د فيديو + ${practiceMins} د توقف وتطبيق كود`
+        : `${vMins} د مشاهدة مباشرة بدون توقف`;
+      document.getElementById("startVideoTimerBtn").textContent = `ابدأ التايمر (${String(totalMins).padStart(2, "0")}:00) ▶`;
+
+      // Highlight active quick video chips
+      document.querySelectorAll(".vmins-chip").forEach((c) => {
+        const active = Number(c.dataset.vmins) === vMins;
+        c.className = "vmins-chip px-3 py-1.5 rounded-xl text-xs font-mono font-bold border transition-colors " + (
+          active ? "bg-cyan-500/15 border-cyan-500/35 text-cyan-300" : "bg-[#0b0f19] hover:bg-slate-800 border-[#1f2937] text-slate-300"
+        );
+      });
+
+      // Highlight active multiplier buttons
+      document.querySelectorAll(".mult-btn").forEach((b) => {
+        const active = Number(b.dataset.mult) === timer.multiplier;
+        b.className = "mult-btn p-2.5 rounded-2xl text-xs font-bold border transition-all " + (
+          active ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300" : "border-[#1f2937] bg-[#0b0f19] text-slate-400 hover:text-white"
+        );
+      });
+    }
+
+    function playGentleChime() {
+      if (timer.muted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          const start = ctx.currentTime + idx * 0.14;
+          gain.gain.setValueAtTime(0.001, start);
+          gain.gain.exponentialRampToValueAtTime(0.15, start + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.55);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.6);
+        });
+      } catch {
+        // AudioContext may be blocked prior to gesture
+      }
+    }
+
+    function updateTimerClockUI() {
+      const mins = Math.floor(timer.remainingSeconds / 60);
+      const secs = timer.remainingSeconds % 60;
+      document.getElementById("timerClock").textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+      document.getElementById("timerModeLabel").textContent = timer.modeLabel;
+
+      const circ = 615.75;
+      const ratio = timer.totalSeconds > 0 ? timer.remainingSeconds / timer.totalSeconds : 0;
+      const circleEl = document.getElementById("timerCircle");
+      circleEl.style.strokeDashoffset = circ * (1 - ratio);
+      circleEl.setAttribute("stroke", timer.accent);
+
+      const toggleBtn = document.getElementById("timerToggleBtn");
+      toggleBtn.textContent = timer.running
+        ? "إيقاف مؤقت ⏸"
+        : (timer.remainingSeconds < timer.totalSeconds ? "استكمال الجلسة ▶" : "ابدأ الجلسة ▶");
+    }
+
+    function stopTimer() {
+      timer.running = false;
+      clearInterval(timer.interval);
+      timer.interval = null;
+      updateTimerClockUI();
+    }
+
+    function startTimer() {
+      if (timer.running) return;
+      if (timer.remainingSeconds <= 0) timer.remainingSeconds = timer.totalSeconds;
+      timer.running = true;
+      updateTimerClockUI();
+      timer.interval = setInterval(() => {
+        if (timer.remainingSeconds > 0) {
+          timer.remainingSeconds--;
+          updateTimerClockUI();
+        } else {
+          stopTimer();
+          playGentleChime();
+          const loggedMins = Math.max(1, Math.round(timer.totalSeconds / 60));
+          recordFocusSession(loggedMins, timer.modeLabel);
+          renderAll();
+          showToast(`عاش يا بطل! تم تسجيل ${loggedMins} دقيقة تركيز 🎉`);
+          timer.remainingSeconds = timer.totalSeconds;
+          updateTimerClockUI();
+        }
+      }, 1000);
+    }
+
+    function loadAndStartTimer(minutes, label, accent = "#10b981") {
+      stopTimer();
+      timer.totalSeconds = minutes * 60;
+      timer.remainingSeconds = minutes * 60;
+      timer.modeLabel = label;
+      timer.accent = accent;
+      updateTimerClockUI();
+      startTimer();
+    }
+
+    // =========================================================================
+    // 7. CORE INTERACTION HANDLERS
+    // =========================================================================
+    function switchTab(tabId) {
+      ui.activeTab = tabId;
+      ["home", "curriculum", "timeline", "timer", "stats"].forEach((id) => {
+        document.getElementById(`view-${id}`).classList.toggle("hidden", id !== tabId);
+      });
+
+      document.querySelectorAll(".desktop-tab").forEach((btn) => {
+        const active = btn.dataset.tab === tabId;
+        btn.className = "desktop-tab px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 " + (
+          active ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30" : "text-slate-400 hover:text-slate-100 border border-transparent"
+        );
+      });
+
+      document.querySelectorAll(".mobile-tab").forEach((btn) => {
+        const active = btn.dataset.tab === tabId;
+        btn.className = "mobile-tab flex flex-col items-center justify-center py-2 rounded-2xl transition-all " + (
+          active ? "bg-cyan-500/15 text-cyan-300" : "text-slate-400"
+        );
+      });
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function jumpToWeekInCurriculum(phaseId, weekId, filterId = "all") {
+      ui.activeFilter = filterId;
+      ui.searchQuery = "";
+      document.getElementById("searchInput").value = "";
+      document.getElementById("clearSearchBtn").classList.add("hidden");
+      ui.expandedPhases.add(phaseId);
+      ui.expandedWeeks.add(weekId);
+      switchTab("curriculum");
+      renderAll();
+      setTimeout(() => {
+        const el = document.getElementById(`curr-week-${weekId}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 90);
+    }
+
+    function toggleItem(itemId) {
+      if (state.checked[itemId]) {
+        delete state.checked[itemId];
+        recordItemActivity(-1);
+      } else {
+        state.checked[itemId] = true;
+        recordItemActivity(1);
+      }
+      persistState(true);
+      renderAll();
+    }
+
+    function toggleReviewFlag(itemId) {
+      if (state.reviewFlags[itemId]) {
+        delete state.reviewFlags[itemId];
+        showToast("تمت إزالة علامة المراجعة");
+      } else {
+        state.reviewFlags[itemId] = true;
+        showToast("تمت الإضافة لقائمة المراجعة ⭐");
+      }
+      persistState(true);
+      renderAll();
+    }
+
+    function adjustWeekExtension(weekId, newExt) {
+      const clamped = Math.max(-6, Math.min(60, parseInt(newExt, 10) || 0));
+      if (clamped === 0) delete state.extensions[weekId];
+      else state.extensions[weekId] = clamped;
+      persistState(true);
+      renderAll();
+    }
+
+    function toggleWholeWeek(weekId) {
+      const phases = getMergedPhases();
+      let target = null;
+      for (const p of phases) {
+        const w = p.weeks.find((x) => x.id === weekId);
+        if (w) { target = w; break; }
+      }
+      if (!target) return;
+      const items = target.sections.flatMap((s) => s.items);
+      const allDone = items.every((i) => state.checked[i.id]);
+      let delta = 0;
+      for (const it of items) {
+        if (allDone) {
+          if (state.checked[it.id]) { delete state.checked[it.id]; delta--; }
+        } else {
+          if (!state.checked[it.id]) { state.checked[it.id] = true; delta++; }
+        }
+      }
+      if (delta !== 0) recordItemActivity(delta);
+      persistState(true);
+      renderAll();
+      showToast(allDone ? "تم إلغاء تحديد الأسبوع" : "تم تحديد الأسبوع بالكامل ✓");
+    }
+
+    // --- Navigation listeners ---
+    document.querySelectorAll("[data-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    // --- Home Dashboard listeners ---
+    document.getElementById("homeGoTimelineBtn").addEventListener("click", () => switchTab("timeline"));
+    document.getElementById("homeReviewCardBtn").addEventListener("click", () => {
+      ui.activeFilter = "review";
+      switchTab("curriculum");
+      renderAll();
+    });
+    document.getElementById("nextUpDoneBtn").addEventListener("click", (e) => {
+      const id = e.currentTarget.dataset.itemId;
+      if (!id) return;
+      toggleItem(id);
+      showToast("عاش! تم إنجاز العنصر والانتقال للتالي ✓");
+    });
+    document.getElementById("nextUpJumpBtn").addEventListener("click", (e) => {
+      jumpToWeekInCurriculum(e.currentTarget.dataset.phaseId, e.currentTarget.dataset.weekId);
+    });
+    document.getElementById("nextUpTimerBtn").addEventListener("click", () => switchTab("timer"));
+    document.getElementById("homeQuickStart10Btn").addEventListener("click", () => {
+      switchTab("timer");
+      loadAndStartTimer(10, "بداية سريعة 10 د ⚡", "#10b981");
+      showToast("انطلقت جلسة الـ 10 دقائق! ركز الآن ⚡");
+    });
+
+    // --- Curriculum Search, Filters & Delegated Events ---
+    const searchInput = document.getElementById("searchInput");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+
+    searchInput.addEventListener("input", (e) => {
+      ui.searchQuery = e.target.value;
+      clearSearchBtn.classList.toggle("hidden", !ui.searchQuery);
+      const phases = getMergedPhases();
+      renderCurriculum(phases, computeTimelineSchedule(phases));
+    });
+
+    clearSearchBtn.addEventListener("click", () => {
+      ui.searchQuery = "";
+      searchInput.value = "";
+      clearSearchBtn.classList.add("hidden");
+      const phases = getMergedPhases();
+      renderCurriculum(phases, computeTimelineSchedule(phases));
+    });
+
+    document.getElementById("filterPillsBar").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-filter]");
+      if (!btn) return;
+      ui.activeFilter = btn.dataset.filter;
+      const phases = getMergedPhases();
+      renderFilterPills(flattenItems(phases));
+      renderCurriculum(phases, computeTimelineSchedule(phases));
+    });
+
+    document.getElementById("resetSearchFiltersBtn").addEventListener("click", () => {
+      ui.activeFilter = "all";
+      ui.searchQuery = "";
+      searchInput.value = "";
+      clearSearchBtn.classList.add("hidden");
+      renderAll();
+    });
+
+    document.getElementById("toggleAllPhasesBtn").addEventListener("click", (e) => {
+      ui.allPhasesExpanded = !ui.allPhasesExpanded;
+      if (ui.allPhasesExpanded) {
+        CURRICULUM.forEach((p) => {
+          ui.expandedPhases.add(p.id);
+          p.weeks.forEach((w) => ui.expandedWeeks.add(w.id));
+        });
+        e.currentTarget.textContent = "طي كل المراحل";
+      } else {
+        ui.expandedPhases.clear();
+        ui.expandedWeeks.clear();
+        e.currentTarget.textContent = "فتح كل المراحل";
+      }
+      const phases = getMergedPhases();
+      renderCurriculum(phases, computeTimelineSchedule(phases));
+    });
+
+    const phasesContainer = document.getElementById("phasesContainer");
+
+    phasesContainer.addEventListener("click", (e) => {
+      // Delete custom item
+      const delBtn = e.target.closest("[data-delete-custom]");
+      if (delBtn) {
+        e.stopPropagation();
+        const [wId, iId] = delBtn.dataset.deleteCustom.split("|");
+        if (state.customItems[wId]) {
+          state.customItems[wId] = state.customItems[wId].filter((c) => c.id !== iId);
+          delete state.checked[iId];
+          delete state.reviewFlags[iId];
+          persistState(true);
+          renderAll();
+          showToast("تم حذف العنصر المخصص");
+        }
+        return;
+      }
+
+      // Review flag ⭐
+      const revBtn = e.target.closest("[data-toggle-review]");
+      if (revBtn) {
+        e.stopPropagation();
+        toggleReviewFlag(revBtn.dataset.toggleReview);
+        return;
+      }
+
+      // Single item toggle
+      const itemBtn = e.target.closest("[data-toggle-item]");
+      if (itemBtn) {
+        toggleItem(itemBtn.dataset.toggleItem);
+        return;
+      }
+
+      // Quick +5 days extension from curriculum header
+      const ext5Btn = e.target.closest("[data-quick-ext5]");
+      if (ext5Btn) {
+        e.stopPropagation();
+        const wId = ext5Btn.dataset.quickExt5;
+        const curr = parseInt(state.extensions[wId] || 0, 10) || 0;
+        adjustWeekExtension(wId, curr + 5);
+        showToast("تم تمديد الأسبوع +5 أيام وتحديث تواريخ الخطة بالكامل 📅");
+        return;
+      }
+
+      // Check whole week
+      const checkWeekBtn = e.target.closest("[data-check-week]");
+      if (checkWeekBtn) {
+        e.stopPropagation();
+        toggleWholeWeek(checkWeekBtn.dataset.checkWeek);
+        return;
+      }
+
+      // Toggle notes visibility
+      const noteBtn = e.target.closest("[data-toggle-note]");
+      if (noteBtn) {
+        const wId = noteBtn.dataset.toggleNote;
+        if (ui.openNotesWeeks.has(wId)) ui.openNotesWeeks.delete(wId);
+        else ui.openNotesWeeks.add(wId);
+        const phases = getMergedPhases();
+        renderCurriculum(phases, computeTimelineSchedule(phases));
+        return;
+      }
+
+      // Open Add Custom Item modal
+      const addBtn = e.target.closest("[data-add-custom]");
+      if (addBtn) {
+        const wId = addBtn.dataset.addCustom;
+        let wTitle = "";
+        for (const p of CURRICULUM) {
+          const found = p.weeks.find((w) => w.id === wId);
+          if (found) { wTitle = found.title; break; }
+        }
+        document.getElementById("customWeekIdInput").value = wId;
+        document.getElementById("customWeekLabel").textContent = wTitle;
+        document.getElementById("customTitleInput").value = "";
+        document.getElementById("customModal").classList.remove("hidden");
+        document.getElementById("customTitleInput").focus();
+        return;
+      }
+
+      // Toggle Week accordion
+      const weekHdr = e.target.closest("[data-toggle-week]");
+      if (weekHdr) {
+        const wId = weekHdr.dataset.toggleWeek;
+        if (ui.expandedWeeks.has(wId)) ui.expandedWeeks.delete(wId);
+        else ui.expandedWeeks.add(wId);
+        const phases = getMergedPhases();
+        renderCurriculum(phases, computeTimelineSchedule(phases));
+        return;
+      }
+
+      // Toggle Phase accordion
+      const phaseHdr = e.target.closest("[data-toggle-phase]");
+      if (phaseHdr) {
+        const pId = phaseHdr.dataset.togglePhase;
+        if (ui.expandedPhases.has(pId)) ui.expandedPhases.delete(pId);
+        else ui.expandedPhases.add(pId);
+        const phases = getMergedPhases();
+        renderCurriculum(phases, computeTimelineSchedule(phases));
+      }
+    });
+
+    // Save Weekly Notes & Drive/GitHub Links without re-rendering DOM (preserves focus)
+    phasesContainer.addEventListener("input", (e) => {
+      const noteTa = e.target.closest("[data-note-input]");
+      if (noteTa) {
+        state.notes[noteTa.dataset.noteInput] = noteTa.value;
+        persistState(false);
+        return;
+      }
+
+      const linkIn = e.target.closest("[data-link-input]");
+      if (linkIn) {
+        const [wId, kind] = linkIn.dataset.linkInput.split("|");
+        if (!state.links[wId]) state.links[wId] = { drive: "", github: "" };
+        state.links[wId][kind] = linkIn.value;
+        persistState(false);
+
+        const openAnchor = document.getElementById(`open-${kind}-${wId}`);
+        if (openAnchor) {
+          const href = normalizeUrl(linkIn.value);
+          if (href) {
+            openAnchor.href = href;
+            openAnchor.classList.remove("pointer-events-none", "text-slate-600", "bg-slate-900");
+            if (kind === "drive") openAnchor.classList.add("bg-cyan-500/15", "text-cyan-300", "border-cyan-500/30");
+            else openAnchor.classList.add("bg-violet-500/15", "text-violet-300", "border-violet-500/30");
+          } else {
+            openAnchor.href = "#";
+            openAnchor.classList.add("pointer-events-none", "text-slate-600", "bg-slate-900");
+            openAnchor.classList.remove("bg-cyan-500/15", "text-cyan-300", "border-cyan-500/30", "bg-violet-500/15", "text-violet-300", "border-violet-500/30");
+          }
+        }
+      }
+    });
+
+    // --- Timeline Tab Listeners ---
+    document.getElementById("timelineStartDateInput").addEventListener("change", (e) => {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) {
+        state.startDate = e.target.value;
+        persistState(true);
+        renderAll();
+        showToast("تم تحديث تاريخ البداية وإعادة حساب المخطط بالكامل 📅");
+      }
+    });
+
+    document.querySelectorAll(".pace-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.paceMode = btn.dataset.pace;
+        persistState(true);
+        renderAll();
+        showToast(`تم التبديل لوضع: ${PACE_CONFIG[state.paceMode].label}`);
+      });
+    });
+
+    document.getElementById("includeBonusToggle").addEventListener("change", (e) => {
+      state.includeBonus = e.target.checked;
+      persistState(true);
+      renderAll();
+    });
+
+    document.getElementById("resetAllExtensionsBtn").addEventListener("click", () => {
+      state.extensions = {};
+      persistState(true);
+      renderAll();
+      showToast("تم تصفير كل التمديدات وإعادة الجدول للأصل");
+    });
+
+    document.getElementById("timelinePhaseFilterBar").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-tl-phase]");
+      if (!btn) return;
+      ui.timelinePhaseFilter = btn.dataset.tlPhase;
+      const phases = getMergedPhases();
+      renderTimeline(phases, computeTimelineSchedule(phases));
+    });
+
+    const tlContainer = document.getElementById("timelineModulesContainer");
+    tlContainer.addEventListener("click", (e) => {
+      const deltaBtn = e.target.closest("[data-ext-delta]");
+      if (deltaBtn) {
+        const [wId, dStr] = deltaBtn.dataset.extDelta.split("|");
+        const curr = parseInt(state.extensions[wId] || 0, 10) || 0;
+        const delta = parseInt(dStr, 10) || 0;
+        adjustWeekExtension(wId, curr + delta);
+        showToast(`تم تعديل الأسبوع (${delta > 0 ? `+${delta}` : delta} يوم) وتحديث باقي التواريخ 🔄`);
+        return;
+      }
+
+      const resetBtn = e.target.closest("[data-ext-reset]");
+      if (resetBtn) {
+        adjustWeekExtension(resetBtn.dataset.extReset, 0);
+        showToast("تمت إعادة ضبط تمديد الأسبوع إلى 0");
+        return;
+      }
+
+      const sessBtn = e.target.closest("[data-tl-sessions]");
+      if (sessBtn) {
+        const wId = sessBtn.dataset.tlSessions;
+        if (ui.expandedTimelineSessions.has(wId)) ui.expandedTimelineSessions.delete(wId);
+        else ui.expandedTimelineSessions.add(wId);
+        const phases = getMergedPhases();
+        renderTimeline(phases, computeTimelineSchedule(phases));
+        return;
+      }
+
+      const jumpBtn = e.target.closest("[data-tl-jump]");
+      if (jumpBtn) {
+        const [pId, wId] = jumpBtn.dataset.tlJump.split("|");
+        jumpToWeekInCurriculum(pId, wId);
+      }
+    });
+
+    tlContainer.addEventListener("change", (e) => {
+      const customExt = e.target.closest("[data-ext-custom]");
+      if (!customExt) return;
+      adjustWeekExtension(customExt.dataset.extCustom, customExt.value);
+      showToast("تم تحديث التمديد المخصص وتعديل باقي المخطط 🔄");
+    });
+
+    // --- Timer Tab Listeners ---
+    document.getElementById("videoMinutesInput").addEventListener("input", updateVideoCalcUI);
+
+    document.querySelectorAll(".vmins-chip").forEach((c) => {
+      c.addEventListener("click", () => {
+        document.getElementById("videoMinutesInput").value = c.dataset.vmins;
+        updateVideoCalcUI();
+      });
+    });
+
+    document.querySelectorAll(".mult-btn").forEach((b) => {
+      b.addEventListener("click", () => {
+        timer.multiplier = Number(b.dataset.mult) || 1.5;
+        updateVideoCalcUI();
+      });
+    });
+
+    document.getElementById("startVideoTimerBtn").addEventListener("click", () => {
+      const vMins = Math.max(1, parseInt(document.getElementById("videoMinutesInput").value, 10) || 36);
+      const totalMins = Math.max(1, Math.round(vMins * timer.multiplier));
+      const practiceMins = Math.max(0, totalMins - vMins);
+      const label = practiceMins > 0
+        ? `تايمر فيديو ${timer.multiplier}x (${vMins}د + ${practiceMins}د كود)`
+        : `مشاهدة فيديو (${vMins}د)`;
+      loadAndStartTimer(totalMins, label, "#06b6d4");
+      showToast(`بدأ التايمر لمدة ${totalMins} دقيقة ⏱️`);
+    });
+
+    document.querySelectorAll(".focus-preset").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mins = Number(btn.dataset.timerPreset) || 10;
+        const labels = {
+          10: "بداية سريعة 10 د ⚡",
+          25: "بومودورو 25 د 🍅",
+          50: "جلسة عميقة 50 د 🚀"
+        };
+        const colors = { 10: "#10b981", 25: "#06b6d4", 50: "#8b5cf6" };
+        loadAndStartTimer(mins, labels[mins] || `${mins} دقيقة`, colors[mins] || "#10b981");
+      });
+    });
+
+    document.getElementById("timerToggleBtn").addEventListener("click", () => {
+      if (timer.running) stopTimer();
+      else startTimer();
+    });
+
+    document.getElementById("timerAdd5Btn").addEventListener("click", () => {
+      timer.totalSeconds += 5 * 60;
+      timer.remainingSeconds += 5 * 60;
+      updateTimerClockUI();
+      showToast("تمت إضافة 5 دقائق للتايمر +5m");
+    });
+
+    document.getElementById("timerResetBtn").addEventListener("click", () => {
+      stopTimer();
+      timer.remainingSeconds = timer.totalSeconds;
+      updateTimerClockUI();
+    });
+
+    document.getElementById("timerMuteBtn").addEventListener("click", () => {
+      timer.muted = !timer.muted;
+      document.getElementById("muteIconOff").classList.toggle("hidden", timer.muted);
+      document.getElementById("muteIconOn").classList.toggle("hidden", !timer.muted);
+      showToast(timer.muted ? "تم كتم صوت التنبيه" : "تم تفعيل صوت التنبيه");
+    });
+
+    document.getElementById("timerMarkDoneBtn").addEventListener("click", (e) => {
+      const id = e.currentTarget.dataset.itemId;
+      if (!id) return;
+      toggleItem(id);
+      showToast("ممتاز! تم إنجاز العنصر والانتقال للتالي ✓");
+    });
+
+    // --- Stats & Review Queue Listeners ---
+    document.getElementById("reviewQueueList").addEventListener("click", (e) => {
+      const jumpBtn = e.target.closest("[data-rq-jump]");
+      if (jumpBtn) {
+        const [pId, wId] = jumpBtn.dataset.rqJump.split("|");
+        jumpToWeekInCurriculum(pId, wId, "all");
+        return;
+      }
+      const unflagBtn = e.target.closest("[data-rq-unflag]");
+      if (unflagBtn) {
+        toggleReviewFlag(unflagBtn.dataset.rqUnflag);
+      }
+    });
+
+    // --- Custom Item Modal ---
+    const customModal = document.getElementById("customModal");
+    const closeCustomModal = () => customModal.classList.add("hidden");
+    document.getElementById("closeCustomModalBtn").addEventListener("click", closeCustomModal);
+    document.getElementById("cancelCustomModalBtn").addEventListener("click", closeCustomModal);
+    customModal.addEventListener("click", (e) => { if (e.target === customModal) closeCustomModal(); });
+
+    document.getElementById("customItemForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const wId = document.getElementById("customWeekIdInput").value;
+      const title = document.getElementById("customTitleInput").value.trim();
+      const type = document.getElementById("customTypeInput").value;
+      if (!wId || !title) return;
+
+      if (!state.customItems[wId]) state.customItems[wId] = [];
+      state.customItems[wId].push({ id: `custom_${wId}_${Date.now()}`, title, type });
+      ui.expandedWeeks.add(wId);
+      persistState(true);
+      closeCustomModal();
+      renderAll();
+      showToast("تمت إضافة العنصر المخصص بنجاح ✓");
+    });
+
+    // --- Reset Modal ---
+    const resetModal = document.getElementById("resetModal");
+    document.getElementById("openResetModalBtn").addEventListener("click", () => resetModal.classList.remove("hidden"));
+    document.getElementById("cancelResetModalBtn").addEventListener("click", () => resetModal.classList.add("hidden"));
+    resetModal.addEventListener("click", (e) => { if (e.target === resetModal) resetModal.classList.add("hidden"); });
+
+    document.getElementById("confirmResetBtn").addEventListener("click", () => {
+      state = createDefaultState();
+      persistState(true);
+      resetModal.classList.add("hidden");
+      renderAll();
+      showToast("تم مسح التقدم وإعادة التهيئة بالكامل");
+    });
+
+    // --- Sync Modal & Google Auth ---
+    const syncModal = document.getElementById("syncModal");
+    const openSyncModal = () => syncModal.classList.remove("hidden");
+    const closeSyncModal = () => syncModal.classList.add("hidden");
+
+    document.getElementById("syncActionBtn").addEventListener("click", openSyncModal);
+    document.getElementById("statsSyncBtn").addEventListener("click", openSyncModal);
+    document.getElementById("closeSyncModalBtn").addEventListener("click", closeSyncModal);
+    syncModal.addEventListener("click", (e) => { if (e.target === syncModal) closeSyncModal(); });
+
+    document.getElementById("googleSignInBtn").addEventListener("click", async () => {
+      if (!firebaseReady || !auth) {
+        showToast("المزامنة بحساب Google تتطلب تشغيل التطبيق على بيئة Firebase؛ الحفظ المحلي يعمل تلقائياً ✓");
+        return;
+      }
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        closeSyncModal();
+        showToast("تم ربط حساب Google والمزامنة السحابية ✓");
+      } catch (err) {
+        console.error("Google Sign-In error:", err);
+        showToast("تعذر فتح نافذة Google في هذا المتصفح؛ الحفظ السحابي للجلسة نشط بالفعل ✓");
+      }
+    });
+
+    document.getElementById("signOutBtn").addEventListener("click", async () => {
+      if (!auth) return;
+      try {
+        await signOut(auth);
+        closeSyncModal();
+        showToast("تم تسجيل الخروج والعودة للوضع المحلي");
+      } catch (err) {
+        console.error("Sign-Out error:", err);
+      }
+    });
+
+    // --- JSON Export, Copy & Import ---
+    document.getElementById("exportJsonBtn").addEventListener("click", () => {
+      try {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `route-backend-tracker-${getTodayISO()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast("تم تحميل ملف النسخة الاحتياطية JSON ✓");
+      } catch {
+        showToast("تعذر التحميل، استخدم زر نسخ التقدم");
+      }
+    });
+
+    document.getElementById("copyJsonBtn").addEventListener("click", () => {
+      const ta = document.createElement("textarea");
+      ta.value = JSON.stringify(state, null, 2);
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast("تم نسخ بيانات التقدم للحافظة ✓");
+      } catch {
+        showToast("تعذر النسخ للحافظة");
+      }
+      ta.remove();
+    });
+
+    document.getElementById("importJsonInput").addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          if (!parsed || typeof parsed !== "object") {
+            showToast("ملف JSON غير صالح");
+            return;
+          }
+          state = sanitizeState(parsed);
+          persistState(true);
+          renderAll();
+          showToast("تم استيراد التقدم بنجاح ✓");
+        } catch {
+          showToast("خطأ في قراءة ملف JSON");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    });
+
+    // =========================================================================
+    // 8. BOOTSTRAP APPLICATION
+    // =========================================================================
+    updateVideoCalcUI();
+    updateTimerClockUI();
+    renderAll();
+    initFirebaseSync();
+  </script>
+</body>
+</html>

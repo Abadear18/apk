@@ -1,0 +1,20 @@
+{
+  "name": "route-backend-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Route Backend Tracker - Android APK wrapper",
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i src/input.css -o www/tailwind.css --minify"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/core": "^8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@fontsource/cairo": "^5.0.0",
+    "@fontsource/jetbrains-mono": "^5.0.0",
+    "tailwindcss": "^3.4.19"
+  }
+}
